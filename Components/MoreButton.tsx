@@ -37,9 +37,9 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
 }
 
 
-    // function handleModify(id:any) {
-    //     router.push(`/order/${id}`);
-    // }
+    function handleModify(id:any) {
+        router.push(`/order/${id}`);
+    }
 
 
     function handlePrint(order: any) {
@@ -162,14 +162,14 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
                     onClick={() => handlePrint(order)}
                     className="cursor-pointer hover:bg-blue-100 rounded-t-xl w-40 py-2">Imprimer
                 </button>
-                {/* <button 
+                <button 
                     onClick={() => handleModify(order.id)}
                     className="cursor-pointer hover:bg-blue-100 w-40 py-2">Modifier
-                </button> */}
-                <button 
+                </button>
+                {/* <button 
                     onClick={() => setOpen(false)}
                     className="cursor-pointer hover:bg-blue-100 w-40 py-2">Copier
-                </button>
+                </button> */}
                 <button 
                     onClick={() => handleClickDelete()}
                     className="cursor-pointer hover:bg-blue-100 rounded-b-xl w-40 py-2">Supprimer
