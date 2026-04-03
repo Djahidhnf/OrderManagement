@@ -33,6 +33,7 @@ export default function Navbar() {
       }
     })
 
+    setUser({username: "", role: ""})
     router.push('/login');
   }
 
@@ -41,24 +42,6 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 
-    // return (
-    //     <nav className="bg-foreground h-15 flex justify-between items-center px-5 fixed top-0 z-2 w-full">
-    //     <ul className="flex w-100 justify-between text-xl">
-    //       <li className={`${path == "/"? "bg-background" : ""} h-15 px-3 flex items-center`}><a href="/">Commandes</a></li>
-    //       <li className={`${path == "/stock"? "bg-background" : ""} h-15 px-3 flex items-center`}><a href="/stock">Stock</a></li>
-    //       <li className={`${path == "/users"? "bg-background" : ""} h-15 px-3 flex items-center`}><a href="/users">Utilisateurs</a></li>
-    //     </ul>
-
-    //     <div className="flex justify-between items-center w-30">
-    //       <div>
-    //         <h1 className="text-xl">{user.username}</h1>
-    //         <h2>{user.role}</h2>
-    //       </div>
-    //       <button className="size-10 rounded-full hover:bg-gray-700 flex justify-center items-center"
-    //       onClick={handleLogout}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="rgba(255,255,255,1)"><path d="M4 18H6V20H18V4H6V6H4V3C4 2.44772 4.44772 2 5 2H19C19.5523 2 20 2.44772 20 3V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V18ZM6 11H13V13H6V16L1 12L6 8V11Z"></path></svg></button>
-    //     </div>
-    //   </nav>
-    // )
 return (
   <nav className="bg-foreground h-15 flex justify-between items-center px-3 sm:px-5 fixed top-0 z-20 w-full shadow-md">
     {/* Mobile Menu Button - Visible on small screens */}

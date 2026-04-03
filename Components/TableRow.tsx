@@ -28,20 +28,22 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
                 <MoreButton order={order} setOrders={setOrders}/>
             </td>
             <td className="border border-gray-600 px-5 w-1/15 py-1">{order.id}</td>
-            <td className="border border-gray-600 px-5 w-3/15 py-1">
+            <td className="border border-gray-600 px-5 w-2/15 py-1">
                 {order.client_name}<br/>
                 {order.client_phone1} - {order.client_phone2}<br/>
                 {order.client_wilaya} - {order.client_address}
             </td>
-            <td className="border border-gray-600 px-5 w-4/15 py-1">{order.products}</td>
+            <td className="border border-gray-600 px-5 w-3/15 py-1" style={{whiteSpace: 'pre-wrap'}}>{order.products}</td>
+            <td className="border border-gray-600 px-5 w-3/15 py-1 text-xs" style={{whiteSpace: 'pre-wrap'}}>{order.notes}</td>
             <td className="border border-gray-600 px-5 w-2/15 py-1">
                 {order.delivery_name}<br/>
-                {order.delivery_phone}</td>
+                {order.delivery_phone}<br/>
+                {order.delivery_name && order.fee + "DA"}</td>
             <td className="border border-gray-600 px-5 w-1/15 py-1">
                 {order.order_date}
             </td>
             <td className="border border-gray-600 px-5 w-1/15 py-1">{order.total}</td>
-            <td className="border border-gray-600 px-5 w-2/15 py-1">
+            <td className="border border-gray-600 px-5 w-1/15 py-1">
                 <StateButton state={order.status} id={order.id} />
             </td>
         </tr>

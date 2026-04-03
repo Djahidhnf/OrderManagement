@@ -7,6 +7,7 @@ import OrderFilter from "../../Components/OrdersFilter";
 import Searchbar from "../../Components/Searchbar";
 // import { cookies } from "next/headers";
 import { useEffect, useState } from "react";
+import PrintOrders from "../../Components/PrintOrders";
 
 
 
@@ -65,7 +66,9 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
           <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
-          <AddButton path="/order"/>
+            <PrintOrders/>
+            <AddButton path="/order"/>
+          
         </div>
 
         
@@ -76,12 +79,13 @@ export default function Home() {
               <tr className=" h-10">
                 <th className="px-5 border border-gray-600 w-1/15"></th>
                 <th className="px-5 border border-gray-600 w-1/15">ID</th>
-                <th className="px-5 border border-gray-600 w-3/15">Client</th>
-                <th className="px-5 border border-gray-600 w-4/15">Produits</th>
-                <th className="px-5 border border-gray-600 w-2/15">Livreur</th>
+                <th className="px-5 border border-gray-600 w-2/15">Client</th>
+                <th className="px-5 border border-gray-600 w-3/15">Produits</th>
+                <th className="px-5 border border-gray-600 w-2/15">Remarque</th>
+                <th className="px-5 border border-gray-600 w-1/15">Livreur</th>
                 <th className="px-5 border border-gray-600 w-1/15">Date</th>
                 <th className="px-5 border border-gray-600 w-1/15">Total</th>
-                <th className="px-5 border border-gray-600 w-2/15">Etat</th>
+                <th className="px-5 border border-gray-600 w-1/15">Etat</th>
               </tr>
             </thead>
             <tbody > 

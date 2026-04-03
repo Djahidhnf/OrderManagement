@@ -19,7 +19,8 @@ export async function GET(req: Request) {
       SELECT 
         orders.*,
         TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date,
-        users.username AS delivery_name
+        users.username AS delivery_name,
+        users.phone AS delivery_phone
       FROM orders
       LEFT JOIN users ON orders.delivery_id = users.id
     `;

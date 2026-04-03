@@ -21,6 +21,7 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
                 orders.benefit,
                 orders.total,
                 orders.fee,
+                orders.return_fee,
                 orders.delivery_id, -- ✅ add this
                 TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date,
                 users.username AS delivery_name,
@@ -73,12 +74,14 @@ export async function PATCH(
       total,
       status,
       fee,
+      note,
+      returnFee,
     } = body;
 
 
     if (role === "Assistante" && status !== "En route" && status !== "Nouveau") {
       return NextResponse.json({error: "Denied"}, {status: 403});
-    } else if (role === "Livreur" && status !== "Livré") {
+    } else if (role === "Livreur" && status !== "Livré" && note === undefined) {
       return NextResponse.json({error: "Denied"}, {status: 403});
     } else if (role === "Vendeuse" && status !== "Annulé") {
       return NextResponse.json({error: "Denied"}, {status: 403});
@@ -93,6 +96,23 @@ export async function PATCH(
     const fields: string[] = [];
     const values: any[] = [];
 
+  const now = new Date();
+  const formatted = now.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+});
+
+if (note !== undefined && role === "Livreur") {
+  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
+  values.push(`[Liv - ${formatted}] - ${note}\n`);
+} else if (note !== undefined && role === "Admin") {
+  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
+  values.push(`[Ad - ${formatted}] - ${note}\n`);
+}
+
 
       if (client_name !== undefined) { fields.push(`client_name = $${values.length + 1}`); values.push(client_name); }
       if (client_phone1 !== undefined) { fields.push(`client_phone1 = $${values.length + 1}`); values.push(client_phone1); }
@@ -105,6 +125,7 @@ export async function PATCH(
       if (total !== undefined) { fields.push(`total = $${values.length + 1}`); values.push(total); }
       if (status !== undefined) { fields.push(`status = $${values.length + 1}`); values.push(status); }
       if (fee !== undefined) { fields.push(`fee = $${values.length + 1}`); values.push(fee)}
+      if (returnFee !== undefined) {fields.push(`return_fee = $${values.length + 1}`); values.push(returnFee)}
     
 
 

@@ -10,13 +10,18 @@ export async function GET(req: Request) {
         const end = searchParams.get("end")
 
         const result = await pool.query(`
-            SELECT 
-            COALESCE(SUM(benefit), 0) AS total_benefit
-            FROM orders
-            WHERE seller_id = $1
-            AND order_date >= $2
-            AND order_date < $3::date + interval '1 day'
-            AND status = 'Livré'`, [id, start, end])
+                SELECT 
+                COALESCE(SUM(
+                    CASE 
+                    WHEN status = 'Livré' THEN COALESCE(benefit)
+                    WHEN status = 'Annulé' THEN -COALESCE(return_fee)
+                    ELSE 0
+                    END
+                ), 0) AS total_benefit
+                FROM orders
+                WHERE seller_id = $1
+                AND order_date >= $2::date
+                AND order_date <= $3::date`, [id, start, end])
 
             console.log(result.rows[0])
 

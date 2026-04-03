@@ -67,8 +67,9 @@ export default function Order({ params }: { params: Promise<{ slug: string }> })
         const [deliveryID, setDeliveryID] = useState<number | null>(null);
         const [benefit, setBenefit] = useState(0);
         const [price, setPrice] = useState(0);
-        const [status, setStatus] = useState("")
+        const [status, setStatus] = useState("");
         const [fee, setFee] = useState(0);
+        const [returnFee, setReturnFee] = useState(0);
 
         const total = price + benefit + fee;
         const [users, setUsers] = useState<any[]>([])
@@ -86,6 +87,7 @@ useEffect(() => {
     setFee(Number(order.fee))
     setDeliveryID(order.delivery_id ?? null);
     setStatus(order.status);
+    setReturnFee(order.return_fee)
     
 
     setBenefit(Number(order.benefit));
@@ -131,6 +133,7 @@ useEffect(() => {
                 total: total,
                 status: status,
                 fee: fee,
+                returnFee: returnFee,
             })
         });
 
@@ -254,15 +257,29 @@ useEffect(() => {
                         </select>
 
                         <select name="fees" id=""
-                        className="w-fit bg-white px-2 h-8"
+                        className="w-[15%] bg-white px-2 h-8"
                         value={fee?? ""}
                         onChange={(e) => setFee(Number(e.target.value))}>
-                            <option value="">Tarif Livraison</option>
+                            <option value="">Frais Livraison</option>
                             <option value="500">500 DA</option>
                             <option value="600">600 DA</option>
                         </select>
 
                     </div>
+
+                    { user?.role === "Admin" && 
+                        <div className="bg-foreground rounded-xl p-5 my-5 w-[80%] mx-auto flex flex-col gap-y-5">
+                            <h1 className="text-white text-2xl mb-5">Frais Retour</h1>
+                            <select name="returnCharges" id="" 
+                            className="w-[15%] bg-white px-2 h-8"
+                            value={returnFee?? ""}
+                            onChange={(e) => setReturnFee(Number(e.target.value))}>
+                                <option value="">Frais Retour</option>
+                                <option value="200">200 DA</option>
+                                <option value="500">500 DA</option>
+                            </select>
+                        </div>
+                    }
 
                     <div className="w-[80%] mx-auto rounded-xl">
                         <button className="h-10 px-3 rounded-sm text-white bg-blue-500 cursor-pointer hover:bg-blue-500/80"

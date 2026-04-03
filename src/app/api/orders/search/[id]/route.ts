@@ -2,30 +2,6 @@ import { NextResponse } from "next/server";
 import pool from "../../../../../../lib/db";
 import { cookies } from "next/headers";
 
-
-// export async function GET(
-//     req: Request,
-//     context: { params: Promise<{ id: string }> }
-// ) {
-//     try {
-//         const {id} = await context.params;
-//         const key = id
-
-
-//         if (!isNaN(Number(key))) {
-//                 const result = await pool.query(`SELECT * FROM orders WHERE id = $1`, [Number(key)]);
-//                 return NextResponse.json(result.rows)
-//             } else {
-//                 const result = await pool.query(`SELECT * FROM orders Where client_name = $1`, [(key).toLowerCase()]);
-//                 return NextResponse.json(result.rows)
-//             }
-        
-//     } catch(err) {
-//         console.error(err);
-//         return NextResponse.json({error: "order search failed"}, {status: 500})
-//     }
-// }
-
 export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
@@ -42,17 +18,20 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let baseQuery = `SELECT * FROM orders`;
+    let baseQuery = `SELECT * FROM orders `;
     const conditions: string[] = [];
     const values: any[] = [];
 
     // 🔍 Search condition
-    if (!isNaN(Number(key))) {
+    if (key.length < 5) {
       conditions.push(`id = $${values.length + 1}`);
       values.push(Number(key));
     } else {
-      conditions.push(`LOWER(client_name) = $${values.length + 1}`);
-      values.push(key.toLowerCase());
+      conditions.push(`(
+        client_phone1 = $${values.length + 1}
+        OR client_phone2 = $${values.length + 1}
+      )`);
+      values.push(key);
     }
 
     // 🔒 Role-based filtering
@@ -70,9 +49,10 @@ export async function GET(
       ${baseQuery}
       WHERE ${conditions.join(" AND ")}
       ORDER BY id DESC
-    `;
-
+      `;
+      
     const result = await pool.query(query, values);
+    console.log(result.rows);
 
     return NextResponse.json(result.rows);
 
