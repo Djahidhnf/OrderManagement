@@ -49,6 +49,7 @@ export default function Order({ params }: { params: { slug: string } }) {
 
             const data = await result.json();
             setOrder(data);
+            console.log(data)
         }
         
         queryData();
