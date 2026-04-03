@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from "next/navigation"
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Order({ params }: { params: { slug: string } }) {
@@ -26,7 +26,9 @@ export default function Order({ params }: { params: { slug: string } }) {
         const [user, setUser] = useState<{userId: number, role: string} | null>(null)
         const [authorized, setAuthorized] = useState<boolean | null>(null)
     
-        console.log("///////////Before query:" + clientName)
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+        console.log("slug: ", params.slug)
+        console.log("clientname before query: ", clientName)
 
       useEffect(() => {
         async function checkAuth() {
@@ -90,7 +92,7 @@ useEffect(() => {
     setBenefit(safeNumber(order.benefit));
     setPrice(safeNumber(order.total) - safeNumber(order.benefit) - safeNumber(order.fee));
 
-    console.log("/////////After query" + order.client_name)
+    console.log("/////////After query ", order.client_name)
 
 }, [order]);
 
