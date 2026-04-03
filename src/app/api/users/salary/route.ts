@@ -21,7 +21,7 @@ export async function GET(req: Request) {
                 FROM orders
                 WHERE seller_id = $1
                 AND order_date >= $2::date
-                AND order_date <= $3::date`, [id, start, end])
+                AND order_date < $3::date + interval '1 day'`, [id, start, end])
 
             console.log(result.rows[0])
 
