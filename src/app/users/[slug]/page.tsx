@@ -6,8 +6,8 @@ import { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 
-function ModifyUser({ params }: { params: { slug: string } }) {
-    const slug = params.slug;
+function ModifyUser({params}: {params: Promise<{slug: string}>}) {
+    const {slug} = use(params)
     const router = useRouter();
 
 

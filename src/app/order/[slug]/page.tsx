@@ -16,12 +16,14 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
         const [deliveryID, setDeliveryID] = useState<number | null>(null);
         const [benefit, setBenefit] = useState(0);
         const [price, setPrice] = useState(0);
-        // const [status, setStatus] = useState("");
+        const [status, setStatus] = useState("");
         const [fee, setFee] = useState(0);
         const [returnFee, setReturnFee] = useState(0);
 
         const total = price + benefit + fee;
         const [users, setUsers] = useState<any[]>([])
+
+
 
         const [user, setUser] = useState<{userId: number, role: string} | null>(null)
         const [authorized, setAuthorized] = useState<boolean | null>(null)
@@ -86,7 +88,7 @@ useEffect(() => {
     setProducts(order.products);
     setFee(safeNumber(order.fee))
     setDeliveryID(order.delivery_id ?? null);
-    // setStatus(order.status);
+    setStatus(order.status);
     setReturnFee(safeNumber(order.return_fee))
     setBenefit(safeNumber(order.benefit));
     setPrice(safeNumber(order.total) - safeNumber(order.benefit) - safeNumber(order.fee));
