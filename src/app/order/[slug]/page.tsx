@@ -54,7 +54,7 @@ export default function Order({ params }: { params: { slug: string } }) {
         checkAuth();
       }, []);
 
-    const [order, setOrder] = useState<any>([]);
+    const [order, setOrder] = useState<any>({});
     const safeNumber = (value: any) => Number(value ?? 0);
 
 
