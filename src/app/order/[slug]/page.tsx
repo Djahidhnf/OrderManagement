@@ -41,7 +41,7 @@ export default function Order({ params }: { params: { slug: string } }) {
     useEffect(() => {
         
         async function queryData() {
-            const result = await fetch(`/api/orders/${slug}`);
+            const result = await fetch(`/api/orders/${params.slug}`);
             if (!result.ok) {
             console.error("Failed to fetch order");
             return;
