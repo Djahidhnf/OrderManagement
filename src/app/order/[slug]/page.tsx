@@ -1,11 +1,11 @@
 'use client'
-import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation"
+import React, { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function Order({ params }: { params: { slug: string } }) {
-  
-  const router = useRouter();
+export default function Order({params}: {params: Promise<{slug: string}>}) {
+    const {slug} = use(params)
+    const router = useRouter();
 
         const [clientName, setClientName] = useState("");
         const [clientPhone1, setClientPhone1] = useState("");
@@ -27,7 +27,7 @@ export default function Order({ params }: { params: { slug: string } }) {
         const [authorized, setAuthorized] = useState<boolean | null>(null)
     
         ///////////////////////////////////////////////////////////////////////////////////////////////
-        console.log("slug: ", params.slug)
+        console.log("slug: ", slug)
         console.log("clientname before query: ", clientName)
 
       useEffect(() => {
@@ -60,7 +60,7 @@ export default function Order({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         async function queryData() {
-            const result = await fetch(`/api/orders/${params.slug}`);
+            const result = await fetch(`/api/orders/${slug}`);
 
             if (!result.ok) {
             console.error("Failed to fetch order");
@@ -70,7 +70,7 @@ export default function Order({ params }: { params: { slug: string } }) {
             console.log(await result.json())
         }
         queryData();
-    }, [params.slug])
+    }, [slug])
         
 
 
@@ -173,7 +173,7 @@ useEffect(() => {
         <>
             <div className="text-black mt-20 mb-10">
                 
-                <form onSubmit={(e) => handleSubmit(e, params.slug)}>
+                <form onSubmit={(e) => handleSubmit(e, slug)}>
 
                     <div className="bg-foreground rounded-xl p-5 w-[80%] mx-auto">
                         <h1 className="text-white text-2xl mb-5">Infos Client</h1>
