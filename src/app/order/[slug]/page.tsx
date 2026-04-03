@@ -3,9 +3,9 @@ import { useRouter } from "next/navigation"
 import React, { use, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function Order({ params }: { params: Promise<{ slug: string }> }) {
+export default function Order({ params }: { params: { slug: string } }) {
+  const slug = params.slug;
     const router = useRouter();
-    const {slug} = use(params);
 
 
         const [user, setUser] = useState<{userId: number, role: string} | null>(null)
