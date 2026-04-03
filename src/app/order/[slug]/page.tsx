@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Order({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
+  
   const router = useRouter();
 
         const [clientName, setClientName] = useState("");
@@ -61,14 +61,13 @@ export default function Order({ params }: { params: { slug: string } }) {
     useEffect(() => {
         async function queryData() {
             const result = await fetch(`/api/orders/${params.slug}`);
+
             if (!result.ok) {
             console.error("Failed to fetch order");
             return;
             }
 
-            const data = await result.json();
-            setOrder(data);
-            console.log(data)
+            console.log(await result.json())
         }
         queryData();
     }, [params.slug])
@@ -174,7 +173,7 @@ useEffect(() => {
         <>
             <div className="text-black mt-20 mb-10">
                 
-                <form onSubmit={(e) => handleSubmit(e, slug)}>
+                <form onSubmit={(e) => handleSubmit(e, params.slug)}>
 
                     <div className="bg-foreground rounded-xl p-5 w-[80%] mx-auto">
                         <h1 className="text-white text-2xl mb-5">Infos Client</h1>
