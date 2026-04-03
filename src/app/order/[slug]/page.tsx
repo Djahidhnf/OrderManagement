@@ -36,6 +36,7 @@ export default function Order({ params }: { params: { slug: string } }) {
       }, []);
 
     const [order, setOrder] = useState<any>(null);
+    const safeNumber = (value: any) => Number(value ?? 0);
 
 
     useEffect(() => {
@@ -81,14 +82,14 @@ useEffect(() => {
     setClientWilaya(order.client_wilaya);
     setClientAddress(order.client_address);
     setProducts(order.products);
-    setFee(Number(order.fee))
+    setFee(safeNumber(order.fee))
     setDeliveryID(order.delivery_id ?? null);
     setStatus(order.status);
-    setReturnFee(order.return_fee)
+    setReturnFee(safeNumber(order.return_fee))
     
 
-    setBenefit(Number(order.benefit));
-    setPrice(Number(order.total) - Number(order.benefit) - Number(order.fee));
+    setBenefit(safeNumber(order.benefit));
+    setPrice(safeNumber(order.total) - Number(order.benefit) - Number(order.fee));
 
 
     console.log(fee);
@@ -272,8 +273,8 @@ useEffect(() => {
                             value={returnFee?? ""}
                             onChange={(e) => setReturnFee(Number(e.target.value))}>
                                 <option value="">Frais Retour</option>
-                                <option value="200">200 DA</option>
-                                <option value="500">500 DA</option>
+                                <option value="200">-200 DA</option>
+                                <option value="500">-500 DA</option>
                             </select>
                         </div>
                     }
