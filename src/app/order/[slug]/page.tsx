@@ -67,7 +67,7 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
             return;
             }
 
-            console.log(await result.json())
+            setOrder(await result.json())
         }
         queryData();
     }, [slug])
