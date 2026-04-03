@@ -5,12 +5,29 @@ import toast from "react-hot-toast";
 
 export default function Order({ params }: { params: { slug: string } }) {
   const slug = params.slug;
-    const router = useRouter();
+  const router = useRouter();
 
+        const [clientName, setClientName] = useState("");
+        const [clientPhone1, setClientPhone1] = useState("");
+        const [clientPhone2, setClientPhone2] = useState("");
+        const [clientWilaya, setClientWilaya] = useState("")
+        const [clientAddress, setClientAddress] = useState("");
+        const [products, setProducts] = useState("");
+        const [deliveryID, setDeliveryID] = useState<number | null>(null);
+        const [benefit, setBenefit] = useState(0);
+        const [price, setPrice] = useState(0);
+        // const [status, setStatus] = useState("");
+        const [fee, setFee] = useState(0);
+        const [returnFee, setReturnFee] = useState(0);
+
+        const total = price + benefit + fee;
+        const [users, setUsers] = useState<any[]>([])
 
         const [user, setUser] = useState<{userId: number, role: string} | null>(null)
         const [authorized, setAuthorized] = useState<boolean | null>(null)
     
+        console.log("///////////Before query:" + clientName)
+
       useEffect(() => {
         async function checkAuth() {
           const res = await fetch("/api/check-session");
@@ -35,12 +52,11 @@ export default function Order({ params }: { params: { slug: string } }) {
         checkAuth();
       }, []);
 
-    const [order, setOrder] = useState<any>(null);
+    const [order, setOrder] = useState<any>([]);
     const safeNumber = (value: any) => Number(value ?? 0);
 
 
     useEffect(() => {
-        
         async function queryData() {
             const result = await fetch(`/api/orders/${params.slug}`);
             if (!result.ok) {
@@ -52,25 +68,10 @@ export default function Order({ params }: { params: { slug: string } }) {
             setOrder(data);
             console.log(data)
         }
-        
         queryData();
-    }, [slug])
+    }, [params.slug])
         
-        const [clientName, setClientName] = useState("");
-        const [clientPhone1, setClientPhone1] = useState("");
-        const [clientPhone2, setClientPhone2] = useState("");
-        const [clientWilaya, setClientWilaya] = useState("")
-        const [clientAddress, setClientAddress] = useState("");
-        const [products, setProducts] = useState("");
-        const [deliveryID, setDeliveryID] = useState<number | null>(null);
-        const [benefit, setBenefit] = useState(0);
-        const [price, setPrice] = useState(0);
-        const [status, setStatus] = useState("");
-        const [fee, setFee] = useState(0);
-        const [returnFee, setReturnFee] = useState(0);
 
-        const total = price + benefit + fee;
-        const [users, setUsers] = useState<any[]>([])
 
 
 useEffect(() => {
@@ -84,15 +85,12 @@ useEffect(() => {
     setProducts(order.products);
     setFee(safeNumber(order.fee))
     setDeliveryID(order.delivery_id ?? null);
-    setStatus(order.status);
+    // setStatus(order.status);
     setReturnFee(safeNumber(order.return_fee))
-    
-
     setBenefit(safeNumber(order.benefit));
-    setPrice(safeNumber(order.total) - Number(order.benefit) - Number(order.fee));
+    setPrice(safeNumber(order.total) - safeNumber(order.benefit) - safeNumber(order.fee));
 
-
-    console.log(fee);
+    console.log("/////////After query" + order.client_name)
 
 }, [order]);
 
@@ -129,7 +127,7 @@ useEffect(() => {
                 delivery_id: deliveryID,
                 benefit: benefit,
                 total: total,
-                status: status,
+                // status: status,
                 fee: fee,
                 returnFee: returnFee,
             })
@@ -160,7 +158,6 @@ useEffect(() => {
     
 
         
-    if (authorized === null) return <div>Loading...</div>;
 
     if (!authorized) {
         return (
