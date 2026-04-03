@@ -35,24 +35,20 @@ export default function Order({ params }: { params: { slug: string } }) {
         checkAuth();
       }, []);
 
-
-    useEffect(() => {
-        async function checkAuth() {
-        const res = await fetch("/api/check-session");
-        if (!res.ok) router.push("/login");
-        }
-        checkAuth();
-    }, []);
-
     const [order, setOrder] = useState<any>(null);
 
 
     useEffect(() => {
         
         async function queryData() {
-            const result = await fetch(`/api/orders/${slug}`)
+            const result = await fetch(`/api/orders/${slug}`);
+            if (!result.ok) {
+            console.error("Failed to fetch order");
+            return;
+            }
+
             const data = await result.json();
-            setOrder(data)
+            setOrder(data);
         }
         
         queryData();
