@@ -47,7 +47,21 @@ export default function Home() {
 
   async function fetchOrders() {
     const res = await fetch("/api/orders");
+
+    if (!res.ok) {
+      console.error("API failed");
+      setOrders([]); // prevent crash
+      return;
+    }
+
     const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      console.error("Invalid data:", data);
+      setOrders([]);
+      return;
+    }
+
     setOrders(data);
   }
 
