@@ -56,7 +56,7 @@ function StateButton({state, id}: {state: any, id: number}) {
 
 
     return (
-        <div className="">
+        <div className="relative">
             <div className={`w-30 px-5 mx-auto border cursor-pointer rounded-xl text-center ${
                 orderState === "Nouveau"? "text-blue-600 border border-blue-600 bg-blue-600/20" :
                 orderState === "En route"? "bg-yellow-600/20 text-yellow-600 border-yellow-600" :
