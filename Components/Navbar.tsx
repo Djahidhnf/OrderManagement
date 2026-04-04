@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,18 +12,25 @@ export default function Navbar() {
   const [user, setUser] = useState<{ username: string; role: string }>({username: "", role: ""});
 
   useEffect(() => {
-    async function fetchSession() {
-      const res = await fetch("/api/check-session");
-      if (res.ok) {
-        const data = await res.json();
-        setUser({ username: data.username, role: data.role });
-      } else {
-        setUser({username: "", role: ""});
-      }
-    }
-    fetchSession();
+  async function fetchSession() {
+    try {
+      const res = await fetch("/api/check-session", {
+        credentials: "include"
+      });
 
-  }, []);
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setUser({ username: data.username, role: data.role });
+
+    } catch {
+      // retry after slight delay
+      setTimeout(fetchSession, 300);
+    }
+  }
+
+  fetchSession();
+}, []);
 
 
   async function handleLogout() {
@@ -35,6 +43,7 @@ export default function Navbar() {
 
     setUser({username: "", role: ""})
     router.push('/login');
+    router.refresh();
   }
 
   const path = usePathname();
@@ -58,13 +67,13 @@ return (
     {/* Desktop Navigation - Hidden on mobile, shown on desktop */}
     <ul className="hidden sm:flex w-auto sm:w-100 justify-between text-xl gap-4 sm:gap-0">
       <li className={`${path == "/"? "bg-background" : ""} h-15 px-3 flex items-center rounded-t-lg`}>
-        <a href="/" className="whitespace-nowrap">Commandes</a>
+        <Link href="/" className="whitespace-nowrap">Commandes</Link>
       </li>
       <li className={`${path == "/stock"? "bg-background" : ""} h-15 px-3 flex items-center rounded-t-lg`}>
-        <a href="/stock" className="whitespace-nowrap">Stock</a>
+        <Link href="/stock" className="whitespace-nowrap">Stock</Link>
       </li>
       <li className={`${path == "/users"? "bg-background" : ""} h-15 px-3 flex items-center rounded-t-lg`}>
-        <a href="/users" className="whitespace-nowrap">Utilisateurs</a>
+        <Link href="/users" className="whitespace-nowrap">Utilisateurs</Link>
       </li>
     </ul>
 

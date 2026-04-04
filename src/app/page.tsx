@@ -21,6 +21,8 @@ export default function Home() {
   const [filter, setFilter] = useState("");
 
   // Check session
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
     async function checkSession() {
       const res = await fetch("/api/check-session");
@@ -32,6 +34,7 @@ export default function Home() {
 
       const data = await res.json();
       setUserId(Number(data.userId));
+      setLoading(false);
     }
 
     checkSession();
@@ -40,14 +43,16 @@ export default function Home() {
 
   // Fetch orders
   useEffect(() => {
-    async function fetchOrders() {
-      const res = await fetch("/api/orders");
-      const data = await res.json();
-      setOrders(data);
-    }
+  if (!userId) return;
 
-    fetchOrders();
-  }, []);
+  async function fetchOrders() {
+    const res = await fetch("/api/orders");
+    const data = await res.json();
+    setOrders(data);
+  }
+
+  fetchOrders();
+}, [userId]);
 
   // Filtered orders
   const filteredOrders =
@@ -55,7 +60,7 @@ export default function Home() {
       ? orders
       : orders.filter(order => order.status === filter);
 
-  if (!userId) return null; // prevent flicker
+  if (loading) return <div>Loading...</div>; // prevent flicker
   
   return (
     <>
@@ -90,7 +95,6 @@ export default function Home() {
             </thead>
             <tbody > 
               <TableRow orders={orders} filter={filter} setOrders={setOrders}/>
-              
             </tbody>
           </table>
         </div>
