@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { cookies } from "next/headers";
 import AddButton from "../../../Components/AddButton"
 import UsersButton from "../../../Components/UsersButton";
 import { Toaster } from "react-hot-toast";
 import { redirect } from "next/navigation";
 import SalaryForm from "../../../Components/SalaryForm";
+import DeliveryTotalForm from "../../../Components/DeliveryTotalForm";
 
 
 async function Users() {
@@ -27,6 +29,7 @@ async function Users() {
 
   const res = await fetch("http://localhost:3000/api/users");
   const users = await res.json();
+  console.log(users[0] + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
 
 
 
@@ -82,6 +85,8 @@ async function Users() {
           </div>
 
           <SalaryForm users={users} />
+
+          <DeliveryTotalForm users={users} />
 
         </main>
       </>

@@ -2,10 +2,9 @@
 import AddButton from "../../Components/AddButton";
 import { Toaster } from "react-hot-toast";
 import TableRow from "../../Components/TableRow";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import OrderFilter from "../../Components/OrdersFilter";
 import Searchbar from "../../Components/Searchbar";
-// import { cookies } from "next/headers";
 import { useEffect, useState } from "react";
 import PrintOrders from "../../Components/PrintOrders";
 
@@ -38,7 +37,7 @@ export default function Home() {
     }
 
     checkSession();
-  }, []);
+  }, [router]);
 
 
   // Fetch orders

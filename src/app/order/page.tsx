@@ -4,53 +4,39 @@ import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-
-
 export default function Order() {
     const router = useRouter();
     const [user, setUser] = useState<{userId: number, role: string} | null>(null)
     const [authorized, setAuthorized] = useState<boolean | null>(null)
 
-  useEffect(() => {
-    async function checkAuth() {
-      const res = await fetch("/api/check-session");
+    useEffect(() => {
+        async function checkAuth() {
+            const res = await fetch("/api/check-session");
 
-      if (!res.ok) {
-        router.push("/login");
-        return;
-      }
+            if (!res.ok) {
+                router.push("/login");
+                return;
+            }
 
-      const data = await res.json();
+            const data = await res.json();
 
-      setUser({ userId: Number(data.userId), role: data.role });
+            setUser({ userId: Number(data.userId), role: data.role });
 
-      // ✅ FIXED LOGIC
-      if (data.role === "Admin" || data.role === "Vendeuse") {
-        setAuthorized(true);
-      } else {
-        setAuthorized(false);
-      }
-    }
+            // ✅ FIXED LOGIC
+            if (data.role === "Admin" || data.role === "Vendeuse") {
+                setAuthorized(true);
+            } else {
+                setAuthorized(false);
+            }
+        }
 
-    checkAuth();
-  }, []);
+        checkAuth();
+    }, [router]);
 
-
-
-
-
-
-/////////////////////////////////////////////////////////////get the seller id and assign it to sellerID
-const [sellerID, setSellerID] = useState<number | null>(null)
-useEffect(() => {
-  if (!user) return;
-
-  if (user.role === "Admin" || user.role === "Vendeuse") {
-    setSellerID(Number(user.userId));
-  } else {
-    setSellerID(null);
-  }
-}, [user]);
+    // ✅ Compute sellerID directly from user instead of using another useEffect
+    const sellerID = user && (user.role === "Admin" || user.role === "Vendeuse") 
+        ? Number(user.userId) 
+        : null;
 
     const [clientName, setClientName] = useState("");
     const [clientPhone1, setClientPhone1] = useState("");
@@ -58,28 +44,24 @@ useEffect(() => {
     const [clientWilaya, setClientWilaya] = useState("Alger")
     const [clientAddress, setClientAddress] = useState("");
     const [products, setProducts] = useState("");
-    const [deliveryID, setDeliveryID] = useState<any>(null);
+    const [deliveryID, setDeliveryID] = useState<number | null>(null);
     const [price, setPrice] = useState(0)
     const [benefit, setBenefit] = useState(0);
     const [deliveryFee, setDeliveryFee] = useState(0);
     
-    const [users, setUsers] = useState<any[]>([]);
-    
+    const [users, setUsers] = useState<unknown>([]);
     
     const total = Number(price) + Number(benefit) + Number(deliveryFee)
     
-
     const wilayas = ["Adrar","Chlef","Laghouat","Oum El Bouaghi","Batna","Bejaia","Biskra","Bechar","Blida","Bouira","Tamanrasset","Tebessa","Tlemcen","Tiaret","Tizi Ouzou","Alger",
         "Djelfa","Jijel","Setif","Saida","Skikda","Sidi Bel Abbes","Annaba","Guelma","Constantine","Medea","Mostaganem","M'Sila","Mascara","Ouargla","Oran","El Bayadh","Illizi",
         "Bordj Bou Arreridj","Boumerdes","El Tarf","Tindouf","Tissemsilt","El Oued","Khenchela","Souk Ahras","Tipaza","Mila","Ain Defla","Naama","Ain Temouchent","Ghardaia","Relizane",
         "Timimoun","Bordj Badji Mokhtar","Ouled Djellal","Beni Abbes","In Salah","In Guezzam","Touggourt","Djanet","El M'Ghair","El Meniaa"];
 
-
     function handleCancel(e: React.MouseEvent) {
         e.preventDefault();
         router.push("/");
     }
-
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -104,10 +86,8 @@ useEffect(() => {
         toast.success('Commande créé avec succès');
         router.push('/')
     }
-
     
     useEffect(() => {
-        
         async function queryUsers() {
             const result = await fetch('/api/users');
             const data = await result.json();
@@ -115,17 +95,16 @@ useEffect(() => {
         }
         queryUsers();
     }, [])
-
     
     if (authorized === null) return <div>Loading...</div>;
 
-  if (!authorized) {
-    return (
-      <div className="text-2xl font-bold text-white text-center mx-auto mt-50">
-        <h1>Accès restreint</h1>
-      </div>
-    );
-  }
+    if (!authorized) {
+        return (
+            <div className="text-2xl font-bold text-white text-center mx-auto mt-50">
+                <h1>Accès restreint</h1>
+            </div>
+        );
+    }
 
     
     return (
