@@ -36,14 +36,14 @@ async function Users() {
     return (
       <>
         <Toaster position="top-center" reverseOrder={false}/>
-        <main className="text-white mx-5 h-full mb-10 w-vw pt-30 relative">
+        <main className="text-white mx-5 h-vh mb-10 w-vw pt-30 relative">
           {/* <h1 className="text-3xl mb-5 mt-20">Gestion des Utilisateurs</h1> */}
 
           <div className="flex justify-end w-full">
             <AddButton path="/adduser"/>
           </div>
 
-          <div className="w-full pr-1 overflow-x-auto">
+          <div className="w-full pr-1 overflow-x-auto h-full">
             <table className="text-white bg-foreground text-left w-full min-w-225 mt-5">
               <thead className="sticky top-0 bg-foreground border border-gray-600">
                 <tr className=" h-10">

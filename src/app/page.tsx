@@ -83,7 +83,7 @@ export default function Home() {
     <>
       <Toaster position="top-center" reverseOrder={false}/>
 
-      <main className="text-white mx-5 h-[70%] pt-30 w-vw relative">
+      <main className="text-white mx-5 h-screen pt-30 w-vw relative">
         {/* <h1 className="text-3xl mb-5 mt-20">Gestion des Commandes</h1> */}
 
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
@@ -100,8 +100,8 @@ export default function Home() {
 
         
 
-        <div className="overflow-y-auto h-fit w-full border border-gray-600 mt-5">
-          <table className="w-full min-w-225 text-left h-full">
+        <div className="overflow-y-auto h-[85%] w-full border border-gray-600 mt-5">
+          <table className="w-full min-w-225 text-left h-fit">
             <thead className="sticky top-0 z-3 bg-foreground border border-gray-600">
               <tr className="h-10">
                 <th className="px-5 border border-gray-600 w-1/15"></th>
