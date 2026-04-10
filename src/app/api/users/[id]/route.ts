@@ -34,9 +34,7 @@ export async function PATCH(
     const userId = Number(id);
     const body = await req.json();
 
-    const {username, password, passwordConfirmation, phone, role} = body;
-
-    console.log(password + "//////////////////////");
+    const {username, password, passwordConfirmation, phone, role, active} = body;
 
     if (!id) {
       return NextResponse.json({ error: "Invalid order id" }, { status: 400 });
@@ -45,18 +43,21 @@ export async function PATCH(
     if (password != passwordConfirmation) {
       return NextResponse.json({error: "passwords do not match"}, {status: 400});
     }
+    
 
-
-    const hash = await bcrypt.hash(password, saltRounds);
 
     const fields: string[] = [];
     const values: any[] = [];
 
+    if (password) {
+      const hash = await bcrypt.hash(password, saltRounds);
+      if (password !== undefined && password !== "") { fields.push(`password = $${values.length + 1}`); values.push(hash); }
+    }
 
       if (username !== undefined) { fields.push(`username = $${values.length + 1}`); values.push(username); }
-      if (password !== undefined && password !== "") { fields.push(`password = $${values.length + 1}`); values.push(hash); }
       if (phone !== undefined) { fields.push(`phone = $${values.length + 1}`); values.push(phone); }
       if (role !== undefined) { fields.push(`role = $${values.length + 1}`); values.push(role); }
+      if (active !== undefined) { fields.push(`active = $${values.length + 1}`); values.push(active);}
     
 
     if (fields.length === 0) {

@@ -7,6 +7,14 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
     try {
 
         const {id} = await context.params;
+
+        const cookieStore = cookies();
+        const userId = (await cookieStore).get("userId")?.value;
+        const role = (await cookieStore).get("role")?.value;
+
+        
+
+
         
         const result = await pool.query(`
             SELECT 
@@ -39,6 +47,9 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
         return NextResponse.json({error: "Query failed"})
     }
 }
+
+
+
 
 
 
@@ -83,14 +94,16 @@ export async function PATCH(
       return NextResponse.json({error: "Denied"}, {status: 403});
     } else if (role === "Livreur" && status !== "Livré" && note === undefined) {
       return NextResponse.json({error: "Denied"}, {status: 403});
-    } else if (role === "Vendeuse" && status !== "Annulé") {
+    } else if (role === "Vendeuse") {
+      return NextResponse.json({error: "Denied"}, {status: 403});
+    } else if (role === "Confirmatrice" && status !== "Annulé" && note === undefined) {
       return NextResponse.json({error: "Denied"}, {status: 403});
     }
 
 
-    if (delivery_id === null) {
-      status = "Nouveau";
-    }
+    // if (delivery_id === null) {
+    //   status = "Nouveau";
+    // }
 
 
     const fields: string[] = [];
@@ -111,6 +124,9 @@ if (note !== undefined && role === "Livreur") {
 } else if (note !== undefined && role === "Admin") {
   fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
   values.push(`[Ad - ${formatted}] - ${note}\n`);
+} else if (note !== undefined && role === "Confirmatrice") {
+  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
+  values.push(`[Cnf - ${formatted}] - ${note}\n`);
 }
 
 

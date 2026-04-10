@@ -24,7 +24,7 @@ function Searchbar({ setOrders }: Props) {
       <div className="flex">
         <input
           type="text"
-          placeholder="Recherche Commande"
+          placeholder="ID ou numero client"
           className="bg-white text-black h-8 w-full lg:w-60 px-2 rounded-l-md"
           value={orderSearch}
           onChange={(e) => setOrderSearch(e.target.value)}

@@ -7,6 +7,8 @@ import OrderFilter from "../../Components/OrdersFilter";
 import Searchbar from "../../Components/Searchbar";
 import { useEffect, useState } from "react";
 import PrintOrders from "../../Components/PrintOrders";
+import Scan from "../../Components/Scan";
+import DateSearch from "../../Components/DateSearch";
 
 
 
@@ -18,6 +20,8 @@ export default function Home() {
   const [userId, setUserId] = useState<number | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Check session
   const [loading, setLoading] = useState(true)
@@ -79,22 +83,27 @@ export default function Home() {
     <>
       <Toaster position="top-center" reverseOrder={false}/>
 
-      <main className="text-white mx-5 h-[90vh] w-vw relative">
-        <h1 className="text-3xl mb-5 mt-20">Gestion des Commandes</h1>
+      <main className="text-white mx-5 h-[70%] pt-30 w-vw relative">
+        {/* <h1 className="text-3xl mb-5 mt-20">Gestion des Commandes</h1> */}
+
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
           <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
+          <div className="flex">
+            <DateSearch setOrders={setOrders}/>
             <PrintOrders/>
+            <Scan />
+          </div>
             <AddButton path="/order"/>
           
         </div>
 
         
 
-        <div className="overflow-y-auto max-h-[70%] w-full border-b border-gray-600 mt-5">
-          <table className="w-full min-w-225 text-left">
-            <thead className="sticky top-0 bg-foreground border border-gray-600">
-              <tr className=" h-10">
+        <div className="overflow-y-auto h-fit w-full border border-gray-600 mt-5">
+          <table className="w-full min-w-225 text-left h-full">
+            <thead className="sticky top-0 z-3 bg-foreground border border-gray-600">
+              <tr className="h-10">
                 <th className="px-5 border border-gray-600 w-1/15"></th>
                 <th className="px-5 border border-gray-600 w-1/15">ID</th>
                 <th className="px-5 border border-gray-600 w-2/15">Client</th>

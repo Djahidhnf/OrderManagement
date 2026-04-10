@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import toast, { Toast, Toaster } from "react-hot-toast";
 
 function login() {
 
@@ -26,7 +27,7 @@ function login() {
         const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error);
+        toast.error(data.error)
       return;
     }
 
@@ -36,6 +37,7 @@ function login() {
 
     return (
         <div className="bg-background h-screen w-screen text-black absolute z-20">
+            <Toaster position="top-center" reverseOrder={false}/>
             <form className="h-100 w-[90%] lg:w-120 bg-foreground rounded-md absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col justify-evenly"
             onSubmit={handleLogin}>
                 <div className="flex flex-col items-center gap-y-5">

@@ -171,7 +171,8 @@ export default function Order() {
                         <h1 className="text-white text-2xl mb-5">Infos Livreur</h1>
                         <select name="delivery" id=""
                         className="w-[40%] bg-white px-2 h-8"
-                        onChange={(e) => setDeliveryID(Number(e.target.value))}>
+                        onChange={(e) => setDeliveryID(Number(e.target.value))}
+                        disabled={user?.role === "Vendeuse"}>
                             <option value="">Selectionez un Livreur</option>
                             <option value="null">aucun</option>
                             {users.map((user) => {
@@ -185,7 +186,8 @@ export default function Order() {
 
                         <select name="fee" id=""
                         className="w-fit bg-white px-2 h-8"
-                        onChange={(e) => setDeliveryFee(Number(e.target.value))}>
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                        disabled={user?.role === "Vendeuse"}>
                             <option value="">Tarif Livraison</option>
                             <option value="500">500 DA</option>
                             <option value="600">600 DA</option>

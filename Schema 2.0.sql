@@ -1,30 +1,3 @@
---
--- PostgreSQL database dump
---
-
-\restrict YZO3mGyLdMdoyoQz9rqR3RrvXwCFV8mmg28rF9RK8gwgDr9hFfX4GwdyYcfO9BA
-
--- Dumped from database version 18.3
--- Dumped by pg_dump version 18.3
-
--- Started on 2026-04-03 18:05:46
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- TOC entry 861 (class 1247 OID 16687)
--- Name: order_status; Type: TYPE; Schema: public; Owner: postgres
---
 
 CREATE TYPE public.order_status AS ENUM (
     'Nouveau',
@@ -35,7 +8,7 @@ CREATE TYPE public.order_status AS ENUM (
 );
 
 
-ALTER TYPE public.order_status OWNER TO postgres;
+ALTER TYPE public.order_status OWNER TO djahid;
 
 --
 -- TOC entry 855 (class 1247 OID 16599)
@@ -50,7 +23,7 @@ CREATE TYPE public.user_role AS ENUM (
 );
 
 
-ALTER TYPE public.user_role OWNER TO postgres;
+ALTER TYPE public.user_role OWNER TO djahid;
 
 SET default_tablespace = '';
 
@@ -81,7 +54,7 @@ CREATE TABLE public.orders (
 );
 
 
-ALTER TABLE public.orders OWNER TO postgres;
+ALTER TABLE public.orders OWNER TO djahid;
 
 --
 -- TOC entry 221 (class 1259 OID 16695)
@@ -96,7 +69,7 @@ CREATE SEQUENCE public.orders_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.orders_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.orders_id_seq OWNER TO djahid;
 
 --
 -- TOC entry 4930 (class 0 OID 0)
@@ -122,7 +95,7 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users OWNER TO djahid;
 
 --
 -- TOC entry 219 (class 1259 OID 16607)
@@ -138,7 +111,7 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.users_id_seq OWNER TO djahid;
 
 --
 -- TOC entry 4931 (class 0 OID 0)
@@ -208,13 +181,4 @@ ALTER TABLE ONLY public.orders
 
 ALTER TABLE ONLY public.orders
     ADD CONSTRAINT fk_orders_seller FOREIGN KEY (seller_id) REFERENCES public.users(id);
-
-
--- Completed on 2026-04-03 18:05:46
-
---
--- PostgreSQL database dump complete
---
-
-\unrestrict YZO3mGyLdMdoyoQz9rqR3RrvXwCFV8mmg28rF9RK8gwgDr9hFfX4GwdyYcfO9BA
 

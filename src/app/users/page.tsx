@@ -29,7 +29,6 @@ async function Users() {
 
   const res = await fetch("http://localhost:3000/api/users");
   const users = await res.json();
-  console.log(users[0] + "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
 
 
 
@@ -37,8 +36,8 @@ async function Users() {
     return (
       <>
         <Toaster position="top-center" reverseOrder={false}/>
-        <main className="text-white mx-5 h-[90vh] w-vw relative">
-          <h1 className="text-3xl mb-5 mt-20">Gestion des Utilisateurs</h1>
+        <main className="text-white mx-5 h-full mb-10 w-vw pt-30 relative">
+          {/* <h1 className="text-3xl mb-5 mt-20">Gestion des Utilisateurs</h1> */}
 
           <div className="flex justify-end w-full">
             <AddButton path="/adduser"/>
@@ -48,11 +47,12 @@ async function Users() {
             <table className="text-white bg-foreground text-left w-full min-w-225 mt-5">
               <thead className="sticky top-0 bg-foreground border border-gray-600">
                 <tr className=" h-10">
-                  <th className="px-5 border border-gray-600 w-1/13"></th>
-                  <th className="px-5 border border-gray-600 w-1/13">ID</th>
-                  <th className="px-5 border border-gray-600 w-3/13">Utilisateurs</th>
-                  <th className="px-5 border border-gray-600 w-3/13">Telephone</th>
-                  <th className="px-5 border border-gray-600 w-1/13">Role</th>
+                  <th className="px-5 border border-gray-600 w-1/10"></th>
+                  <th className="px-5 border border-gray-600 w-1/10">ID</th>
+                  <th className="px-5 border border-gray-600 w-3/10">Utilisateurs</th>
+                  <th className="px-5 border border-gray-600 w-3/10">Telephone</th>
+                  <th className="px-5 border border-gray-600 w-1/10">Role</th>
+                  <th className="px-5 border border-gray-600 w-1/10">Status</th>
                 </tr>
               </thead>
                 <tbody>
@@ -65,8 +65,8 @@ async function Users() {
                       <td className="border border-gray-600 pl-5">{user.id}</td>
                       <td className="border border-gray-600 pl-5">{user.username}</td>
                       <td className="border border-gray-600 pl-5">{user.phone}</td>
-                      
                       <td className="border border-gray-600 pl-5">{user.role}</td>
+                      <td className={`border border-gray-600 pl-5 ${user.active? "text-green-700" : "text-red-700"}`}>{user.active? "Active" : "Inactive"}</td>
                   </tr>
                   )
                 })}

@@ -83,6 +83,7 @@ function AddUser() {
                                 <option value="Livreur">Livreur</option>
                                 <option value="Vendeuse">Vendeuse</option>
                                 <option value="Assistante">Assistante</option>
+                                <option value="Confirmatrice">Confirmatrice</option>
                             </select>
                         </div>
                     </div>

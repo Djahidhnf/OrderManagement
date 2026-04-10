@@ -66,7 +66,7 @@ function StateButton({state, id}: {state: any, id: number}) {
             onClick={() => setOpen(!open)}>{orderState}
             </div>
 
-            <div ref={ref} className={`absolute right-7 bg-background rounded-xl shadow z-4 ${open? "block" : "hidden"}`}>
+            <div ref={ref} className={`absolute right-0 bg-background rounded-xl shadow z-4 ${open? "block" : "hidden"}`}>
                 <button
                  onClick={() => handleChange("Nouveau", id)}
                  className={`hover:text-gray-700 rounded-t-xl hover:bg-gray-400 cursor-pointer w-30 h-10 block bg-blue-700/50 ${orderState === "Nouveau"? "text-white " : "text-blue-600"}`}>Nouveau</button>

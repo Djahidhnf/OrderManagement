@@ -10,22 +10,40 @@ export async function GET(req: Request) {
         const end = searchParams.get("end")
 
         const result = await pool.query(`
-                SELECT 
-                COALESCE(SUM(
+            SELECT orders.*,
+                seller.username AS seller_name,
+                delivery.username AS delivery_name,
+
+                COALESCE(
+                    SUM(
                     CASE 
-                    WHEN status = 'Livré' THEN COALESCE(benefit)
-                    WHEN status = 'Annulé' THEN -COALESCE(return_fee)
-                    ELSE 0
+                        WHEN orders.status = 'Livré' THEN COALESCE(orders.benefit, 0)
+                        WHEN orders.status = 'Annulé' THEN -COALESCE(orders.return_fee, 0)
+                        ELSE 0
                     END
-                ), 0) AS total_benefit
-                FROM orders
-                WHERE seller_id = $1
-                AND order_date >= $2::date
-                AND order_date < $3::date + interval '1 day'`, [id, start, end])
+                    ) OVER (), 
+                0) AS total_benefit
+            FROM orders
 
-            console.log(result.rows[0])
+            -- seller
+            LEFT JOIN users AS seller 
+            ON orders.seller_id = seller.id
 
-        return NextResponse.json(result.rows[0].total_benefit)
+            -- delivery
+            LEFT JOIN users AS delivery 
+            ON orders.delivery_id = delivery.id
+
+            WHERE orders.seller_id = $1
+            AND orders.order_date >= $2::date
+            AND orders.order_date < $3::date + interval '1 day'
+
+            ORDER BY orders.id DESC;`, [id, start, end])
+
+
+
+            console.log(result.rows)
+
+        return NextResponse.json(result.rows)
 
 
     } catch (err) {

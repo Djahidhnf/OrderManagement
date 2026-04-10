@@ -26,6 +26,10 @@ export async function POST(req: Request) {
         if (!valid) {
             return Response.json({ error: "Invalid credentials" }, { status: 401 });
         }
+
+        if (!result.rows[0].active) {
+            return Response.json({error: "Compte est inactive"}, {status: 401})
+        }
         
         const res = NextResponse.json({ ok: true });
 
