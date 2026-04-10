@@ -49,7 +49,7 @@ export default function Order() {
     const [benefit, setBenefit] = useState(0);
     const [deliveryFee, setDeliveryFee] = useState(0);
     
-    const [users, setUsers] = useState<unknown>([]);
+    const [users, setUsers] = useState<any>([]);
     
     const total = Number(price) + Number(benefit) + Number(deliveryFee)
     
@@ -175,7 +175,7 @@ export default function Order() {
                         disabled={user?.role === "Vendeuse"}>
                             <option value="">Selectionez un Livreur</option>
                             <option value="null">aucun</option>
-                            {users.map((user) => {
+                            {users.map((user: any) => {
                                 if (user.role == "Livreur") {
                                     return (
                                         <option key={user.id} value={user.id}>{user.username}</option>
