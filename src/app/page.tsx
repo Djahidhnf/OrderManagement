@@ -104,7 +104,7 @@ export default function Home() {
 
         <div className="overflow-y-auto h-[85%] w-full border border-gray-600 mt-5">
           <table className="w-full min-w-225 text-left h-fit">
-            <thead className="sticky top-0 z-3 bg-foreground border border-gray-600">
+            <thead className="sticky top-0 z-2 bg-foreground border border-gray-600">
               <tr className="h-10">
                 <th className="px-5 border border-gray-600 w-1/15"></th>
                 <th className="px-5 border border-gray-600 w-1/15">ID</th>
