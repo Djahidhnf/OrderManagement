@@ -136,6 +136,9 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
         <li>${order.order_date}</li>
       </ul>
     </div>
+    <div class="box">
+      <img src="/api/orders/barcode?id=${order.id}" alt="Barcode for order ${order.id}">
+    </div>
 
   </div>
 

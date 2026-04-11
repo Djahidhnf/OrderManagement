@@ -20,8 +20,10 @@ export default function Home() {
   const [userId, setUserId] = useState<number | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+
+  // const today = new Date(). toISOString().split('T')[0];
+  // const [startDate, setStartDate] = useState(today);
+  // const [endDate, setEndDate] = useState(today);
 
   // Check session
   const [loading, setLoading] = useState(true)
