@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       SELECT 
         orders.*,
 
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS formatted_date,
+        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS formatted_date,
 
         d.username AS delivery_name,
         d.phone AS delivery_phone,

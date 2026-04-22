@@ -40,7 +40,7 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
                 {order.delivery_phone}<br/>
                 {order.delivery_name && order.fee + "DA"}</td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
-                {order.order_date}
+                {order.formatted_date}
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">{order.total}</td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
