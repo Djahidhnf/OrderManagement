@@ -106,15 +106,16 @@ export default function Home() {
           <table className="w-full min-w-225 text-left h-fit">
             <thead className="sticky top-0 z-2 bg-foreground border border-gray-600">
               <tr className="h-10">
-                <th className="px-5 border border-gray-600 w-1/15"></th>
-                <th className="px-5 border border-gray-600 w-1/15">ID</th>
-                <th className="px-5 border border-gray-600 w-2/15">Client</th>
-                <th className="px-5 border border-gray-600 w-3/15">Produits</th>
-                <th className="px-5 border border-gray-600 w-2/15">Remarque</th>
-                <th className="px-5 border border-gray-600 w-1/15">Livreur</th>
-                <th className="px-5 border border-gray-600 w-1/15">Date</th>
-                <th className="px-5 border border-gray-600 w-1/15">Total</th>
-                <th className="px-5 border border-gray-600 w-1/15">Etat</th>
+                <th className="px-5 border border-gray-600 w-1/16"></th>
+                <th className="px-5 border border-gray-600 w-1/16">ID</th>
+                <th className="px-5 border border-gray-600 w-1/16">Vendeuse</th>
+                <th className="px-5 border border-gray-600 w-2/16">Client</th>
+                <th className="px-5 border border-gray-600 w-3/16">Produits</th>
+                <th className="px-5 border border-gray-600 w-2/16">Remarque</th>
+                <th className="px-5 border border-gray-600 w-1/16">Livreur</th>
+                <th className="px-5 border border-gray-600 w-1/16">Date</th>
+                <th className="px-5 border border-gray-600 w-1/16">Total</th>
+                <th className="px-5 border border-gray-600 w-1/16">Etat</th>
               </tr>
             </thead>
             <tbody > 

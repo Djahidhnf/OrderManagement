@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from "react";
@@ -27,10 +28,18 @@ function UsersButton({user}: {user: any}) {
 
 
     async function handleDelete(id: string) {
-        await fetch(`/api/users/${id}`, {
+        const res = await fetch(`/api/users/${id}`, {
             method: "DELETE",
             headers: {"Application-Type": "application/json"}
         })
+
+        if (res.status === 400) {
+            setOpenDelete(false);
+            toast.error(`${user.username} ne peut pas être supprimé`)
+            return;
+        }
+
+
         router.refresh();
         toast.success(`${user.username} est supprimé`)
     }

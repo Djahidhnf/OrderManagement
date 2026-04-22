@@ -47,7 +47,7 @@ export async function PATCH(
 
 
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
 
     if (password) {
       const hash = await bcrypt.hash(password, saltRounds);
@@ -91,28 +91,38 @@ export async function DELETE(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-    try {
-
+  try {
     const { id } = await context.params;
 
-
     if (!id) {
-      return NextResponse.json({ error: "Invalid order id" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
     }
 
-    const result = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [id]);
+    const result = await pool.query(
+      "DELETE FROM users WHERE id = $1 RETURNING *",
+      [id]
+    );
 
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, deleted: result.rows[0] });
 
+  } catch (err: any) {
+    console.error(err);
 
-
-
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "User Deletion failed"}, {status: 500})
+    // 🔥 Handle foreign key constraint
+    if (err.code === "23503") {
+      return NextResponse.json(
+        { error: "Cannot delete user: linked to existing orders" },
+        { status: 400 }
+      );
     }
+
+    return NextResponse.json(
+      { error: "User deletion failed" },
+      { status: 500 }
+    );
+  }
 }

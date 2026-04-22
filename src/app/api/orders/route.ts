@@ -13,32 +13,38 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ Extract query parameters from the URL
     const { searchParams } = new URL(req.url);
-    const start = searchParams.get('start');
-    const end = searchParams.get('end');
+    const start = searchParams.get("start");
+    const end = searchParams.get("end");
 
     let query = `
       SELECT 
         orders.*,
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date,
-        users.username AS delivery_name,
-        users.phone AS delivery_phone
+
+        TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS formatted_date,
+
+        d.username AS delivery_name,
+        d.phone AS delivery_phone,
+
+        s.username AS seller_name,
+        s.phone AS seller_phone
+
       FROM orders
-      LEFT JOIN users ON orders.delivery_id = users.id
+      LEFT JOIN users d ON orders.delivery_id = d.id
+      LEFT JOIN users s ON orders.seller_id = s.id
     `;
 
     const conditions: string[] = [];
     const values: any[] = [];
 
-    // 🔥 filter by date
+    // 📅 Date filter
     if (start && end) {
       conditions.push(`
         orders.order_date >= $${values.length + 1}::date
         AND orders.order_date < $${values.length + 2}::date + interval '1 day'
       `);
       values.push(start, end);
-    } else {  
+    } else {
       conditions.push(`
         orders.order_date >= CURRENT_DATE
         AND orders.order_date < CURRENT_DATE + interval '1 day'
@@ -49,12 +55,14 @@ export async function GET(req: Request) {
     if (role === "Vendeuse") {
       conditions.push(`orders.seller_id = $${values.length + 1}`);
       values.push(userId);
-    } else if (role === "Livreur") {
+    } 
+    else if (role === "Livreur") {
       conditions.push(`orders.delivery_id = $${values.length + 1}`);
       values.push(userId);
-    } else if (role === "Confirmatrice") {
+    } 
+    else if (role === "Confirmatrice") {
       conditions.push(`orders.client_wilaya != $${values.length + 1}`);
-      values.push(`Alger`);
+      values.push("Alger");
     }
 
     // Apply conditions
@@ -65,9 +73,6 @@ export async function GET(req: Request) {
     query += ` ORDER BY orders.id DESC`;
 
     const result = await pool.query(query, values);
-
-    console.log(start, end + "///////////////////")
-    console.log(result.rows) 
 
     return NextResponse.json(result.rows);
 
