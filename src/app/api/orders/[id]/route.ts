@@ -30,13 +30,15 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
                 orders.total,
                 orders.fee,
                 orders.return_fee,
-                orders.delivery_id, -- ✅ add this
                 TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date,
-                users.username AS delivery_name,
-                users.phone AS delivery_phone
+                d.username AS delivery_name,
+                d.phone AS delivery_phone,
+                s.username AS seller_name,
+                s.phone AS seller_phone
             FROM orders
-            LEFT JOIN users
-                ON orders.delivery_id = users.id
+            LEFT JOIN users d ON orders.delivery_id = d.id
+            LEFT JOIN users s ON orders.seller_id = s.id
+          
             WHERE orders.id = $1
         `, [id]);
 
