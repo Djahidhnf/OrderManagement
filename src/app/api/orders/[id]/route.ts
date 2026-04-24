@@ -8,39 +8,33 @@ export async function GET(req: Request, context: { params: Promise<{ id: string 
 
         const {id} = await context.params;
 
-        const cookieStore = cookies();
-        const userId = (await cookieStore).get("userId")?.value;
-        const role = (await cookieStore).get("role")?.value;
+        // const cookieStore = cookies();
+        // const userId = (await cookieStore).get("userId")?.value;
+        // const role = (await cookieStore).get("role")?.value;
 
         
 
 
         
-        const result = await pool.query(`
-            SELECT 
-                orders.id,
-                orders.client_name,
-                orders.client_phone1,
-                orders.client_phone2,
-                orders.client_wilaya,
-                orders.client_address,
-                orders.status,
-                orders.products,
-                orders.benefit,
-                orders.total,
-                orders.fee,
-                orders.return_fee,
-                TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date,
-                d.username AS delivery_name,
-                d.phone AS delivery_phone,
-                s.username AS seller_name,
-                s.phone AS seller_phone
-            FROM orders
-            LEFT JOIN users d ON orders.delivery_id = d.id
-            LEFT JOIN users s ON orders.seller_id = s.id
-          
-            WHERE orders.id = $1
-        `, [id]);
+const result = await pool.query(`
+      SELECT 
+        orders.*,
+
+        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS formatted_date,
+
+        d.username AS delivery_name,
+        d.phone AS delivery_phone,
+
+        s.username AS seller_name,
+        s.phone AS seller_phone
+
+      FROM orders
+      LEFT JOIN users d ON orders.delivery_id = d.id
+      LEFT JOIN users s ON orders.seller_id = s.id
+      WHERE orders.id = $1
+`, [id]);
+
+console.log(result.rows[0] + "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 
         
         return NextResponse.json(result.rows[0]);
@@ -75,7 +69,7 @@ export async function PATCH(
 
     const body = await req.json();
 
-    let {
+    const {
       client_name,
       client_phone1,
       client_phone2,
@@ -109,7 +103,7 @@ export async function PATCH(
 
 
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
 
   const now = new Date();
   const formatted = now.toLocaleString('fr-FR', {

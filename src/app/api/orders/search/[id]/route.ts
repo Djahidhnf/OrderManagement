@@ -18,28 +18,41 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let baseQuery = `SELECT * FROM orders `;
+    // Updated query with JOINs to get seller and delivery info
+    const baseQuery = `
+      SELECT 
+        orders.*,
+        TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date_formatted,
+        seller.username AS seller_name,
+        seller.phone AS seller_phone,
+        delivery.username AS delivery_name,
+        delivery.phone AS delivery_phone
+      FROM orders
+      LEFT JOIN users AS seller ON orders.seller_id = seller.id
+      LEFT JOIN users AS delivery ON orders.delivery_id = delivery.id
+    `;
+    
     const conditions: string[] = [];
     const values: any[] = [];
 
     // 🔍 Search condition
     if (key.length < 5) {
-      conditions.push(`id = $${values.length + 1}`);
+      conditions.push(`orders.id = $${values.length + 1}`);
       values.push(Number(key));
     } else {
       conditions.push(`(
-        client_phone1 = $${values.length + 1}
-        OR client_phone2 = $${values.length + 1}
+        orders.client_phone1 = $${values.length + 1}
+        OR orders.client_phone2 = $${values.length + 1}
       )`);
       values.push(key);
     }
 
     // 🔒 Role-based filtering
     if (role === "Vendeuse") {
-      conditions.push(`seller_id = $${values.length + 1}`);
+      conditions.push(`orders.seller_id = $${values.length + 1}`);
       values.push(userId);
     } else if (role === "Livreur") {
-      conditions.push(`delivery_id = $${values.length + 1}`);
+      conditions.push(`orders.delivery_id = $${values.length + 1}`);
       values.push(userId);
     }
     // Admin → no restriction
@@ -48,8 +61,8 @@ export async function GET(
     const query = `
       ${baseQuery}
       WHERE ${conditions.join(" AND ")}
-      ORDER BY id DESC
-      `;
+      ORDER BY orders.id DESC
+    `;
       
     const result = await pool.query(query, values);
     console.log(result.rows);

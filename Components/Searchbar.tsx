@@ -4,7 +4,7 @@ import { useState } from "react";
 
 
 type Props = {
-  setOrders: React.Dispatch<React.SetStateAction<any[]>>;
+  setOrders: React.Dispatch<React.SetStateAction<unknown[]>>;
 };
 
 function Searchbar({ setOrders }: Props) {

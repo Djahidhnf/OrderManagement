@@ -74,10 +74,10 @@ export default function Home() {
 }, [userId]);
 
   // Filtered orders
-  const filteredOrders =
-    filter === ""
-      ? orders
-      : orders.filter(order => order.status === filter);
+  // const filteredOrders =
+  //   filter === ""
+  //     ? orders
+  //     : orders.filter(order => order.status === filter);
 
   if (loading) return <div>Loading...</div>; // prevent flicker
   
