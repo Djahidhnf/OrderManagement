@@ -22,7 +22,7 @@ export async function GET(
     const baseQuery = `
       SELECT 
         orders.*,
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY') AS order_date_formatted,
+        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS order_date_formatted,
         seller.username AS seller_name,
         seller.phone AS seller_phone,
         delivery.username AS delivery_name,
