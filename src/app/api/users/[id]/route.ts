@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../lib/prisma';
 import { num } from '../../../../../lib/serialize';
@@ -29,6 +30,12 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const cookieStore = cookies();
+    const reqUserId = (await cookieStore).get('userId')?.value;
+    const reqRole = (await cookieStore).get('role')?.value;
+
+    if (!reqUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await context.params;
     const body = await req.json();
     const { username, password, passwordConfirmation, phone, role } = body;
@@ -67,6 +74,13 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const cookieStore = cookies();
+    const reqUserId = (await cookieStore).get('userId')?.value;
+    const reqRole = (await cookieStore).get('role')?.value;
+
+    if (!reqUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (reqRole !== 'Admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const { id } = await context.params;
     await prisma.users.delete({ where: { id: Number(id) } });
     return NextResponse.json({ success: true });

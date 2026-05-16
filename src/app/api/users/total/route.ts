@@ -1,9 +1,14 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../lib/prisma';
 import { toPrisma } from '../../../../../lib/status';
 
 export async function GET(req: Request) {
   try {
+    const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     const date = searchParams.get('date');

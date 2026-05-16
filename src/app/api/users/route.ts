@@ -8,6 +8,10 @@ const SALT_ROUNDS = 10;
 
 export async function GET() {
   try {
+    const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const users = await prisma.users.findMany({
       orderBy: { id: 'asc' },
       select: {

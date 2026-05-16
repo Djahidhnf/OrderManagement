@@ -52,6 +52,8 @@ export async function PATCH(
 
     const cookieStore = cookies();
     const role = (await cookieStore).get('role')?.value;
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
     const {
