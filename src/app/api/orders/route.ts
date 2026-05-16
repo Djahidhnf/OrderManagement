@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import pool from "../../../../lib/db";
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../lib/prisma';
 import { serializeOrder } from '../../../../lib/serialize';
@@ -63,95 +62,80 @@ export async function GET(req: Request) {
 }
 
 
-export async function DELETE(req: Request) {
+export async function POST(req: Request) {
   try {
-    const {searchParams} = new URL(req.url);
-    const id = searchParams.get('id')
+    const body = await req.json();
+    const {
+      seller_id, client_name, client_phone1, client_phone2,
+      client_wilaya, client_address, products,
+      delivery_id, benefit, total, fee,
+    } = body;
 
-    const cookieStore = cookies();
-    const role = (await cookieStore).get("role")?.value;
-    
-    if(!id) {
-      return NextResponse.json({ error: "Missing order id" }, { status: 400 });
+    const order = await prisma.orders.create({
+      data: {
+        seller_id: Number(seller_id),
+        client_name: String(client_name).toLowerCase(),
+        client_phone1,
+        client_phone2: client_phone2 ?? null,
+        client_wilaya: client_wilaya ?? null,
+        client_address,
+        products: products ?? null,
+        delivery_id: delivery_id ? Number(delivery_id) : null,
+        benefit: benefit ?? null,
+        total: total ?? null,
+        fee: fee ?? null,
+      },
+    });
+
+    // Increment seller salary by benefit
+    if (benefit) {
+      await prisma.users.update({
+        where: { id: Number(seller_id) },
+        data: { salary: { increment: Number(benefit) } },
+      });
     }
 
-    const order = await pool.query("SELECT status FROM orders WHERE id = $1", [id]);
-    const status = order.rows[0].status;
-
-
-
-    if (
-      role !== "Admin" &&
-      !(role === "Vendeuse" && status === "Nouveau")
-    ) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    // Increment delivery salary by fee
+    if (delivery_id && fee) {
+      await prisma.users.update({
+        where: { id: Number(delivery_id) },
+        data: { salary: { increment: Number(fee) } },
+      });
     }
 
-        // Delete the order
-    const result = await pool.query("DELETE FROM orders WHERE id = $1 RETURNING *", [id]);
-
-    if (result.rowCount === 0) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, deleted: result.rows[0] });
-
+    return NextResponse.json({ ...order, id: Number(order.id) });
   } catch (err) {
-      console.log(err);
-      return NextResponse.json({error: "Database query failed"}, { status: 500});
+    console.error(err);
+    return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
   }
 }
 
 
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
 
-
-
-
-export async function POST(req: Request) {
-  try {    
-    const body = await req.json();
-
-      const {
-        seller_id,
-        client_name,
-        client_phone1,
-        client_phone2,
-        client_wilaya,
-        client_address,
-        products,
-        delivery_id,
-        benefit,
-        total,
-        fee
-      } = body;
-
-          const result = await pool.query(`INSERT INTO orders (seller_id, client_name, client_phone1, client_phone2, client_wilaya, client_address, products, delivery_id, benefit, total, fee)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`, [seller_id, (client_name).toLowerCase(), client_phone1, client_phone2, client_wilaya, client_address, products, delivery_id, benefit, total, fee]);
-
-    // 2. Add benefit to seller salary
-    if (benefit) {
-      await pool.query(
-        `UPDATE users
-         SET salary = salary + $1
-         WHERE id = $2`,
-        [Number(benefit), seller_id]
-      );
+    if (!id) {
+      return NextResponse.json({ error: 'Missing order id' }, { status: 400 });
     }
 
-            // 3. Add fee to delivery salary
-    if (delivery_id && fee) {
-      await pool.query(
-        `UPDATE users
-         SET salary = salary + $1
-         WHERE id = $2`,
-        [Number(fee), delivery_id]
-      );
+    const cookieStore = cookies();
+    const role = (await cookieStore).get('role')?.value;
+
+    const order = await prisma.orders.findUnique({ where: { id: BigInt(id) } });
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    return NextResponse.json(result.rows[0]);
+    if (role !== 'Admin' && !(role === 'Vendeuse' && order.status === 'Nouveau')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
+    await prisma.orders.delete({ where: { id: BigInt(id) } });
+    return NextResponse.json({ success: true });
   } catch (err) {
-      console.error(err);
-      return NextResponse.json({ error: "Database query failed" }, { status: 500 });
+    console.error(err);
+    return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
   }
 }
