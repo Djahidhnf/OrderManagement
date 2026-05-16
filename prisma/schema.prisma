@@ -41,8 +41,8 @@ model users {
 enum order_status {
   Nouveau
   En_route @map("En route")
-  Livr_    @map("Livré")
-  Annul_   @map("Annulé")
+  Livre    @map("Livré")
+  Annule   @map("Annulé")
   Retour
 }
 
