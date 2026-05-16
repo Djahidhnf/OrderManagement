@@ -1,44 +1,47 @@
-import { NextRequest, NextResponse } from "next/server";
-import pool from "../../../../lib/db";
-import bcrypt from "bcrypt";
-const saltRounds = 10;
+import bcrypt from 'bcrypt';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../lib/prisma';
+import { num } from '../../../../lib/serialize';
 
-export async function GET(req: Request) {
-    try {
+const SALT_ROUNDS = 10;
 
-        const users = await pool.query('SELECT * FROM users ORDER BY id ASC');
-        return NextResponse.json(users.rows)
+export async function GET() {
+  try {
+    const users = await prisma.users.findMany({
+      orderBy: { id: 'asc' },
+      select: {
+        id: true, username: true, role: true,
+        salary: true, phone: true,
+      },
+    });
 
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "Users query failed"}, {status: 500});
-    }
+    return NextResponse.json(
+      users.map(u => ({ ...u, salary: num(u.salary) }))
+    );
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Users query failed' }, { status: 500 });
+  }
 }
 
-
 export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const {username, password, passwordConfirmation, phone, role} = body;
-        const salary = 0;
+  try {
+    const { username, password, passwordConfirmation, phone, role } = await req.json();
 
-        console.log(username, password, passwordConfirmation, phone, role);
-
-        if (password != passwordConfirmation) {
-            return NextResponse.json({error: "Passwords do not match"})
-        }
-
-
-        const hash = await bcrypt.hash(password, saltRounds);
-        
-        
-        const result = await pool.query(`INSERT INTO users (username, password, phone, role, salary) 
-        VALUES ($1, $2, $3, $4, $5) RETURNING *`, [username, hash, phone, role, salary]);
-        return NextResponse.json(result.rows[0]);
-
-
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "User creation failed"}, {status: 500})
+    if (password !== passwordConfirmation) {
+      return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
+
+    const hash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const user = await prisma.users.create({
+      data: { username, password: hash, phone: phone ?? null, role, salary: 0 },
+      select: { id: true, username: true, role: true, phone: true, salary: true },
+    });
+
+    return NextResponse.json({ ...user, salary: num(user.salary) });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
+  }
 }
