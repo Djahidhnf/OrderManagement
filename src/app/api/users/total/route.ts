@@ -1,30 +1,33 @@
-import { NextResponse } from "next/server"
-import pool from "../../../../../lib/db";
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../../lib/prisma';
+import { toPrisma } from '../../../../../lib/status';
 
 export async function GET(req: Request) {
-    try {
-        
-        const { searchParams } = new URL(req.url);
-        const id = searchParams.get("id")
-        const date = searchParams.get("date")
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const date = searchParams.get('date');
 
-        
-
-        const result = await pool.query(`
-            SELECT
-            COALESCE (SUM(total), 0) AS total_sum
-            FROM orders
-            WHERE delivery_id = $1
-                AND status = 'Livré'
-                AND order_date >= $2::date
-                AND order_date < $2::date + interval '1 day'`, [id, date])
-
-
-        return NextResponse.json(result.rows[0].total_sum)
-
-
-    } catch (err) {
-        console.error(err)
-        return NextResponse.json({error: "failed to calculate total"}, {status: 500})
+    if (!id || !date) {
+      return NextResponse.json({ error: 'Missing params' }, { status: 400 });
     }
+
+    const gte = new Date(date);
+    const lt = new Date(date);
+    lt.setDate(lt.getDate() + 1);
+
+    const agg = await prisma.orders.aggregate({
+      _sum: { total: true },
+      where: {
+        delivery_id: Number(id),
+        status: toPrisma('Livré') as any,
+        order_date: { gte, lt },
+      },
+    });
+
+    return NextResponse.json(Number(agg._sum.total ?? 0));
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Failed to calculate total' }, { status: 500 });
+  }
 }
