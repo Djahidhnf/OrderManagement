@@ -1,54 +1,30 @@
-import bcrypt from "bcrypt";
-import pool from "../../../../lib/db";
-import { NextResponse } from "next/server";
-
-import { cookies } from "next/headers";
-import crypto from "crypto";
+import bcrypt from 'bcrypt';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../lib/prisma';
 
 export async function POST(req: Request) {
-    try {
+  try {
+    const { username, password } = await req.json();
 
-        const { username, password } = await req.json();
-        
-        const result = await pool.query(
-            `SELECT * FROM users WHERE username = $1`,
-            [username]
-        );
-        
-        const user = result.rows[0];
-        
-        if (!user) {
-            return Response.json({ error: "Invalid credentials" }, { status: 401 });
-        }
-        
-        const valid = await bcrypt.compare(password, user.password);
-        
-        if (!valid) {
-            return Response.json({ error: "Invalid credentials" }, { status: 401 });
-        }
+    const user = await prisma.users.findUnique({ where: { username } });
 
-        if (!result.rows[0].active) {
-            return Response.json({error: "Compte est inactive"}, {status: 401})
-        }
-        
-        const res = NextResponse.json({ ok: true });
+    if (!user) {
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-        // Set HTTP-only cookie
-        res.cookies.set({
-            name: "userId",
-            value: String(user.id),
-            httpOnly: true,   // <- prevents client JS access
-            path: "/",        // accessible on all routes
-            maxAge: 60 * 60 * 24, // 1 day
-            sameSite: "lax",  // optional but recommended
-        });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return Response.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
 
-        res.cookies.set("role", user.role, { httpOnly: true, path: "/" });
-        res.cookies.set("username", user.username, {httpOnly: true, path: "/"});
-
-        return res;
-            } catch (err) {
-                console.log(err)
-                return NextResponse.json({error: "Authentication failed"}, {status: 500})
-            }
+    const res = NextResponse.json({ ok: true });
+    res.cookies.set({ name: 'userId', value: String(user.id), httpOnly: true, path: '/', maxAge: 60 * 60 * 24, sameSite: 'lax' });
+    res.cookies.set('role', String(user.role), { httpOnly: true, path: '/' });
+    res.cookies.set('username', user.username, { httpOnly: true, path: '/' });
+    return res;
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
+  }
 }
