@@ -19,7 +19,8 @@ CREATE TYPE public.user_role AS ENUM (
     'Admin',
     'Assistante',
     'Vendeuse',
-    'Livreur'
+    'Livreur',
+    'Confirmatrice'
 );
 
 
@@ -91,7 +92,8 @@ CREATE TABLE public.users (
     password text NOT NULL,
     role public.user_role NOT NULL,
     salary numeric(10,0),
-    phone character varying(10)
+    phone character varying(10),
+    active boolean NOT NULL DEFAULT TRUE
 );
 
 

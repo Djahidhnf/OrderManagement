@@ -26,6 +26,11 @@ function AddUser() {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
+        if (password !== passwordConfirmation) {
+            toast.error("Les mots de passe ne sont pas identiques");
+            return;
+        }
+
         const result = await fetch('/api/users', {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -40,7 +45,7 @@ function AddUser() {
 
         const data = await result.json();
         if (data.error) {
-            toast.error("Les mots de passe ne sont pas identiques")
+            toast.error(data.error);
             return;
         }
         

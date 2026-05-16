@@ -38,8 +38,8 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
       }
 
       toast.success("Remarque ajouté avec succès");
-      setShowNotes(false)
       router.refresh();
+  
 
     }
 
@@ -223,7 +223,8 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
             </div>
 
 
-            <div className={`${showNotes ? "block" : "hidden"} fixed top-0 left-0 h-screen w-screen z-3 bg-black/50 cursor-auto`}>
+            <div className={`${showNotes ? "block" : "hidden"} fixed top-0 left-0 h-screen w-screen z-3 bg-black/50 cursor-auto`}
+              onDoubleClick={(e) => e.stopPropagation()}>
               <div className="bg-white h-[50%] w-full lg:w-150 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-4 rounded-xl">
                 <p className="text-black border bg-white rounded-md h-[50%] p-2 overflow-y-auto" style={{whiteSpace: "pre-wrap"}}>{order.notes}</p>
                 <form onSubmit={(e) => handleAddNote(e, order.id)}>

@@ -9,7 +9,9 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   
   const router = useRouter()
+  const path = usePathname();
   const [user, setUser] = useState<{ username: string; role: string }>({username: "", role: ""});
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
   async function fetchSession() {
@@ -24,13 +26,12 @@ export default function Navbar() {
       setUser({ username: data.username, role: data.role });
 
     } catch {
-      // retry after slight delay
-      setTimeout(fetchSession, 300);
+      setUser({ username: "", role: "" });
     }
   }
 
   fetchSession();
-}, []);
+}, [path]);
 
 
   async function handleLogout() {
@@ -45,10 +46,6 @@ export default function Navbar() {
     router.push('/login');
     router.refresh();
   }
-
-  const path = usePathname();
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 
 return (

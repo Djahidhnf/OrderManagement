@@ -5,7 +5,7 @@ import { useState } from "react";
 
 
 
-function DeliveryTotalForm({users}: {users: never[]}) {
+function DeliveryTotalForm({users}: {users: any[]}) {
 
 
         const [total, setTotal] = useState<number | null>(null);

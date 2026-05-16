@@ -14,7 +14,7 @@ export async function GET(
     const { id } = await context.params;
     const user = await prisma.users.findUnique({
       where: { id: Number(id) },
-      select: { id: true, username: true, role: true, phone: true, salary: true },
+      select: { id: true, username: true, role: true, phone: true, salary: true, active: true },
     });
 
     if (!user) return NextResponse.json({}, { status: 404 });
@@ -38,16 +38,19 @@ export async function PATCH(
 
     const { id } = await context.params;
     const body = await req.json();
-    const { username, password, passwordConfirmation, phone, role } = body;
+    const { username, password, passwordConfirmation, phone, role, active } = body;
 
     if (password && password !== passwordConfirmation) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
 
+    if (reqRole !== 'Admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const data: any = {};
     if (username !== undefined) data.username = username;
     if (phone !== undefined) data.phone = phone;
     if (role !== undefined) data.role = role;
+    if (active !== undefined) data.active = active;
     if (password) {
       data.password = await bcrypt.hash(password, SALT_ROUNDS);
     }
@@ -59,7 +62,7 @@ export async function PATCH(
     const user = await prisma.users.update({
       where: { id: Number(id) },
       data,
-      select: { id: true, username: true, role: true, phone: true, salary: true },
+      select: { id: true, username: true, role: true, phone: true, salary: true, active: true },
     });
 
     return NextResponse.json({ ...user, salary: num(user.salary) });

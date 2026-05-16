@@ -61,7 +61,7 @@ Keep as `prisma.$queryRaw` with a tagged template literal. All other routes use 
 
 **Notes append pattern**  
 Current SQL: `notes = COALESCE(notes, '') || $1`  
-Replace with: fetch current `notes` via `prisma.order.findUnique`, append in JS, then `prisma.order.update`.
+Replace with: fetch current `notes` via `prisma.order.findUnique`, append in JS (`(existing ?? '') + newNote`), then `prisma.order.update`.
 
 **Dynamic partial updates**  
 `PATCH /orders/[id]` and `PATCH /users/[id]` build SQL dynamically via `fields[]`/`values[]` arrays.  

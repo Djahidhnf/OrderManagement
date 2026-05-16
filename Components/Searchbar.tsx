@@ -13,6 +13,7 @@ function Searchbar({ setOrders }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!orderSearch.trim()) return;
 
     const res = await fetch(`/api/orders/search/${orderSearch}`);
     const data = await res.json();

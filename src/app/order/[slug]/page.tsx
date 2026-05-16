@@ -23,7 +23,7 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
     
             setUser({ userId: Number(data.userId), role: data.role });
     
-            if (data.role === "Admin" || data.role === "Assistante") {
+            if (data.role === "Admin" || data.role === "Assistante" || data.role === "Confirmatrice") {
                 setAuthorized(true);
             } else {
                 setAuthorized(false);
@@ -149,82 +149,83 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
         <>
             <div className="text-black mt-20 mb-10">
                 <form onSubmit={(e) => handleSubmit(e, slug)}>
-                    <div className="bg-foreground rounded-xl p-5 w-[80%] mx-auto">
+                    <div className="bg-foreground rounded-xl p-5 w-[95%] lg:w-[80%] mx-auto">
                         <h1 className="text-white text-2xl mb-5">Infos Client</h1>
-                        <div className="w-full flex justify-between mb-5">
+                        <div className="w-full flex flex-col lg:flex-row lg:justify-between gap-y-3 mb-5">
                             <input type="text" placeholder="Nom & prenom du destinataire *" name="clientName" required
-                                className="bg-white w-[40%] h-8 px-2" 
+                                className="bg-white w-full lg:w-[40%] h-8 px-2"
                                 value={clientName}
                                 onChange={(e) => setClientName(e.target.value)}
-                                disabled={user?.role === "Assistante"}/>
-                            <div className="w-[50%] flex justify-between">
+                                disabled={user?.role === "Assistante" || user?.role === "Confirmatrice"}/>
+                            <div className="w-full lg:w-[50%] flex justify-between gap-x-2">
                                 <input type="tel" placeholder="Telephone 1 *" name="clientPhone1" required
-                                    className="bg-white h-8 px-2 w-[45%]"
+                                    className="bg-white h-8 px-2 w-[48%]"
                                     value={clientPhone1}
                                     onChange={(e) => setClientPhone1(e.target.value)}
-                                    disabled={user?.role === "Assistante"}/>
+                                    disabled={user?.role === "Assistante" || user?.role === "Confirmatrice"}/>
                                 <input type="tel" placeholder="Telephone 2" name="clientPhone2"
-                                    className="bg-white h-8 px-2 w-[45%]" 
+                                    className="bg-white h-8 px-2 w-[48%]"
                                     value={clientPhone2}
                                     onChange={(e) => setClientPhone2(e.target.value)}
-                                    disabled={user?.role === "Assistante"}/>
+                                    disabled={user?.role === "Assistante" || user?.role === "Confirmatrice"}/>
                             </div>
                         </div>
-                        <div className="w-full flex justify-between">
+                        <div className="w-full flex flex-col lg:flex-row lg:justify-between gap-y-3">
                             <select name="wilaya" id=""
-                                className="bg-white w-[40%] h-8 px-2"
+                                className="bg-white w-full lg:w-[40%] h-8 px-2"
                                 onChange={(e) => setClientWilaya(e.target.value)}
                                 value={clientWilaya}
-                                disabled={user?.role === "Assistante" || order.status === "Livré"}>
+                                disabled={user?.role === "Assistante" || user?.role === "Confirmatrice" || order.status === "Livré"}>
                                 <option value="">Sélectionnez une wilaya</option>
                                 {wilayas.map(wilaya => (
                                     <option value={wilaya} key={wilaya}>{wilaya}</option>
                                 ))}
                             </select>
                             <input type="text" placeholder="Addresse *" name="clientAddress" required
-                                className="bg-white w-[50%] h-8 px-2"
+                                className="bg-white w-full lg:w-[50%] h-8 px-2"
                                 value={clientAddress}
-                                onChange={(e) => setClientAddress(e.target.value)} 
-                                disabled={user?.role === "Assistante" || order.status === "Livré"}/>
+                                onChange={(e) => setClientAddress(e.target.value)}
+                                disabled={user?.role === "Assistante" || user?.role === "Confirmatrice" || order.status === "Livré"}/>
                         </div>
                     </div>
 
-                    <div className="bg-foreground rounded-xl p-5 my-5 w-[80%] mx-auto">
+                    <div className="bg-foreground rounded-xl p-5 my-5 w-[95%] lg:w-[80%] mx-auto">
                         <h1 className="text-white text-2xl mb-5">Infos Commande</h1>
                         <textarea placeholder="Produits *" name="products" required
-                            className="bg-white w-full px-2 h-20 "
+                            className="bg-white w-full px-2 h-20"
                             value={products}
                             onChange={(e) => setProducts(e.target.value)}
-                            disabled={user?.role === "Assistante" || order.status === "Livré"}/>
-                        <div className="w-[40%] flex justify-between my-5">
+                            disabled={user?.role === "Assistante" || user?.role === "Confirmatrice" || order.status === "Livré"}/>
+                        <div className="w-full lg:w-[40%] flex justify-between gap-x-2 my-5">
                             <input type="number" placeholder="Prix *" name="price" required
-                                className="w-[40%] h-8 px-2 bg-white"
+                                className="w-[48%] h-8 px-2 bg-white"
                                 value={price}
                                 onChange={(e) => setPrice(Number(e.target.value))}
-                                disabled={user?.role === "Assistante" || order.status === "Livré"}/>
+                                disabled={user?.role === "Assistante" || user?.role === "Confirmatrice" || order.status === "Livré"}/>
                             <input type="number" placeholder="Bénéfice" name="benefit"
-                                className="w-[40%] h-8 px-2 bg-white"
+                                className="w-[48%] h-8 px-2 bg-white"
                                 value={benefit}
                                 onChange={(e) => setBenefit(Number(e.target.value))}
-                                disabled={user?.role === "Assistante" || order.status === "Livré"}/>
+                                disabled={user?.role === "Assistante" || user?.role === "Confirmatrice" || order.status === "Livré"}/>
                         </div>
                         <div>
                             <input type="number" placeholder="Total a ramasser *" name="total" required
-                                className="w-[40%] h-8 px-2 bg-white"
+                                className="w-full lg:w-[40%] h-8 px-2 bg-white"
                                 value={total} readOnly/>
                         </div>
                     </div>
 
-                    <div className="bg-foreground rounded-xl p-5 my-5 w-[80%] mx-auto flex flex-col gap-y-5">
+                    <div className="bg-foreground rounded-xl p-5 my-5 w-[95%] lg:w-[80%] mx-auto flex flex-col gap-y-5">
                         <h1 className="text-white text-2xl mb-5">Infos Livreur</h1>
                         <select
-                            className="w-[40%] bg-white px-2 h-8"
+                            className="w-full lg:w-[40%] bg-white px-2 h-8"
                             onChange={(e) => {
                                 const value = e.target.value;
                                 setDeliveryID(value === "" ? null : Number(value));
+                                setStatus(value === "" ? "Nouveau" : "En route");
                             }}
                             value={deliveryID ?? ""}
-                            disabled={user?.role === "Vendeuse" || order.status === "Livré"}>
+                            disabled={user?.role === "Vendeuse" || user?.role === "Confirmatrice" || order.status === "Livré"}>
                             <option value="">Selectionez un Livreur</option>
                             {users
                                 .filter(user => user.role === "Livreur")
@@ -235,22 +236,54 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
                                 ))}
                         </select>
 
-                        <select name="fees" id=""
-                            className="w-[15%] bg-white px-2 h-8"
-                            value={fee}
-                            onChange={(e) => setFee(Number(e.target.value))}
-                            disabled={user?.role === "Vendeuse" || order.status === "Livré"}>
-                            <option value="0">Frais Livraison</option>
-                            <option value="500">500 DA</option>
-                            <option value="600">600 DA</option>
-                        </select>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <select name="fees" id=""
+                                className="w-full sm:w-[30%] lg:w-[15%] bg-white px-2 h-8"
+                                value={fee}
+                                onChange={(e) => setFee(Number(e.target.value))}
+                                disabled={user?.role === "Vendeuse" || user?.role === "Confirmatrice" || order.status === "Livré"}>
+                                <option value="0">Frais Livraison</option>
+                                <option value="500">500 DA</option>
+                                <option value="600">600 DA</option>
+                            </select>
+
+                            {(user?.role === "Admin" || user?.role === "Assistante" || user?.role === "Confirmatrice") && (
+                                <select
+                                    className="w-full sm:w-[30%] lg:w-[20%] bg-white px-2 h-8"
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}>
+                                    {user?.role === "Admin" && (
+                                        <>
+                                            <option value="Nouveau">Nouveau</option>
+                                            <option value="En route">En route</option>
+                                            <option value="Livré">Livré</option>
+                                            <option value="Annulé">Annulé</option>
+                                            <option value="Retour">Retour</option>
+                                        </>
+                                    )}
+                                    {user?.role === "Assistante" && (
+                                        <>
+                                            <option value="Nouveau">Nouveau</option>
+                                            <option value="En route">En route</option>
+                                        </>
+                                    )}
+                                    {user?.role === "Confirmatrice" && (
+                                        <>
+                                            <option value="En route">En route</option>
+                                            <option value="Annulé">Annulé</option>
+                                            <option value="Livré">Livré</option>
+                                        </>
+                                    )}
+                                </select>
+                            )}
+                        </div>
                     </div>
 
-                    {user?.role === "Admin" && 
-                        <div className="bg-foreground rounded-xl p-5 my-5 w-[80%] mx-auto flex flex-col gap-y-5">
+                    {user?.role === "Admin" &&
+                        <div className="bg-foreground rounded-xl p-5 my-5 w-[95%] lg:w-[80%] mx-auto flex flex-col gap-y-5">
                             <h1 className="text-white text-2xl mb-5">Frais Retour</h1>
-                            <select name="returnCharges" id="" 
-                                className="w-[15%] bg-white px-2 h-8"
+                            <select name="returnCharges" id=""
+                                className="w-full sm:w-[30%] lg:w-[15%] bg-white px-2 h-8"
                                 value={returnFee}
                                 onChange={(e) => setReturnFee(Number(e.target.value))}>
                                 <option value="0">Frais Retour</option>
@@ -260,7 +293,7 @@ export default function Order({params}: {params: Promise<{slug: string}>}) {
                         </div>
                     }
 
-                    <div className="w-[80%] mx-auto rounded-xl">
+                    <div className="w-[95%] lg:w-[80%] mx-auto rounded-xl">
                         <button className="h-10 px-3 rounded-sm text-white bg-blue-500 cursor-pointer hover:bg-blue-500/80"
                             type="submit">Enregister</button>
                         <button className="h-10 px-3 rounded-sm text-blue-500 border border-blue-500 ml-5 cursor-pointer hover:bg-blue-500 hover:text-white"

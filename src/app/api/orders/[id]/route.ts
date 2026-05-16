@@ -61,34 +61,49 @@ export async function PATCH(
       products, delivery_id, benefit, total, status, fee, note, returnFee,
     } = body;
 
+    const data: any = {};
+
+    // Pre-fetch needed for Confirmatrice wilaya check and salary adjustments
+    const currentOrder = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: { notes: true, seller_id: true, delivery_id: true, benefit: true, fee: true, client_wilaya: true },
+    });
+
     // Role guards
-    if (role === 'Assistante' && status !== 'En route' && status !== 'Nouveau') {
-      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+    if (role === 'Assistante') {
+      if (status !== undefined && status !== 'En route' && status !== 'Nouveau') {
+        return NextResponse.json({ error: 'Denied' }, { status: 403 });
+      }
     }
     if (role === 'Livreur' && status !== 'Livré' && note === undefined) {
       return NextResponse.json({ error: 'Denied' }, { status: 403 });
     }
     if (role === 'Vendeuse') {
-      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+      if (note === undefined || status !== undefined) {
+        return NextResponse.json({ error: 'Denied' }, { status: 403 });
+      }
     }
-    if (role === 'Confirmatrice' && status !== 'Annulé' && note === undefined) {
-      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+    if (role === 'Confirmatrice') {
+      const allowedStatuses = ['En route', 'Annulé', 'Livré'];
+      if (status !== undefined && !allowedStatuses.includes(status)) {
+        return NextResponse.json({ error: 'Denied' }, { status: 403 });
+      }
+      if (status !== undefined && (!currentOrder?.client_wilaya || currentOrder.client_wilaya === 'Alger')) {
+        return NextResponse.json({ error: 'Accès refusé: wilaya Alger' }, { status: 403 });
+      }
     }
-
-    const data: any = {};
-
-    // Single pre-fetch used for both notes append and salary delta
-    const currentOrder = await prisma.orders.findUnique({
-      where: { id: orderId },
-      select: { notes: true, seller_id: true, delivery_id: true, benefit: true, fee: true },
-    });
 
     if (note !== undefined && currentOrder) {
       const formatted = new Date().toLocaleString('fr-FR', {
         day: '2-digit', month: '2-digit', year: '2-digit',
         hour: '2-digit', minute: '2-digit',
       });
-      const prefix = role === 'Livreur' ? 'Liv' : role === 'Admin' ? 'Ad' : 'Cnf';
+      const prefix =
+        role === 'Livreur'       ? 'Liv' :
+        role === 'Admin'         ? 'Ad'  :
+        role === 'Confirmatrice' ? 'Cnf' :
+        role === 'Vendeuse'      ? 'Vnd' :
+        role === 'Assistante'    ? 'Ass' : 'Usr';
       data.notes = `${currentOrder.notes ?? ''}[${prefix} - ${formatted}] - ${note}\n`;
     }
 
@@ -139,13 +154,17 @@ export async function PATCH(
       }
     }
 
+
+    // Conditionally build update data object
     if (client_name !== undefined) data.client_name = client_name;
     if (client_phone1 !== undefined) data.client_phone1 = client_phone1;
     if (client_phone2 !== undefined) data.client_phone2 = client_phone2;
     if (client_wilaya !== undefined) data.client_wilaya = client_wilaya;
     if (client_address !== undefined) data.client_address = client_address;
     if (products !== undefined) data.products = products;
-    if (delivery_id !== undefined) data.delivery_id = delivery_id ? Number(delivery_id) : null;
+
+    if (delivery_id !== undefined)data.delivery_id = delivery_id ? Number(delivery_id) : null;
+
     if (benefit !== undefined) data.benefit = benefit;
     if (total !== undefined) data.total = total;
     if (fee !== undefined) data.fee = fee;

@@ -17,24 +17,26 @@ function handlePrint(orders: any[]) {
     <div class="order">
       <div class="left">
         <p>
-          id: ${order.id}<br/>
-          ${order.client_name}<br/>
+          <strong>id:</strong> ${order.id}<br/>
+          <strong>client:</strong> ${order.client_name}<br/>
           ${order.client_phone1} - ${order.client_phone2}<br/>
-          ${order.client_wilaya} - ${order.client_address}
+          ${order.client_wilaya} - ${order.client_address}<br/>
+          <hr/>
+          <strong>vendeuse:</strong> ${order.seller_name || "Vendeuse non assigne"}<br/><strong>Benefice:</strong> ${order.benefit}
         </p>
       </div>
 
       <div class="middle">
-        <p style="white-space: pre-wrap;">${order.products}</p>
+        <p style="white-space: pre-wrap;"><strong>Produits:</strong><br/>${order.products}</p>
       </div>
 
       <div class="right">
         <p>
-          ${order?.delivery_name || "livreur non assigne"}<br/>
-          ${order.delivery_phone || ""}<br/>
-          Frais: ${order.fee} DA<br/>
-          Total: ${order.total} DA<br/>
-          ${order.status}
+          <strong>livreur:</strong> ${order?.delivery_name || "wordexpress"}<br/>
+          <strong> Téléphone:</strong> ${order.delivery_phone || ""}<br/>
+          <strong>Frais:</strong> ${order.fee} DA<br/>
+          <strong>Total:</strong> ${order.total} DA<br/>
+          <strong>Statut:</strong> ${order.status}
         </p>
       </div>
     </div>

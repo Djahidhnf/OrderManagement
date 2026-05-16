@@ -25,13 +25,20 @@ export async function GET(req: Request) {
       SELECT
         orders.id,
         orders.client_name,
+        orders.client_phone1,
+        orders.client_phone2,
+        orders.client_wilaya,
+        orders.client_address,
         orders.products,
         orders.status,
         orders.benefit,
+        orders.fee,
+        orders.total,
         orders.return_fee,
         orders.order_date,
         seller.username  AS seller_name,
         delivery.username AS delivery_name,
+        delivery.phone    AS delivery_phone,
         COALESCE(
           SUM(
             CASE
@@ -54,6 +61,8 @@ export async function GET(req: Request) {
       ...r,
       id: Number(r.id),
       benefit: r.benefit != null ? Number(r.benefit) : null,
+      fee: r.fee != null ? Number(r.fee) : null,
+      total: r.total != null ? Number(r.total) : null,
       return_fee: r.return_fee != null ? Number(r.return_fee) : null,
       total_benefit: Number(r.total_benefit),
     }));

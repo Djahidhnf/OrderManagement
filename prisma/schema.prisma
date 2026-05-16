@@ -34,6 +34,7 @@ model users {
   role                             user_role
   salary                           Decimal?  @db.Decimal(10, 0)
   phone                            String?   @db.VarChar(10)
+  active                           Boolean   @default(true)
   orders_orders_delivery_idTousers orders[]  @relation("orders_delivery_idTousers")
   orders_orders_seller_idTousers   orders[]  @relation("orders_seller_idTousers")
 }
@@ -51,4 +52,5 @@ enum user_role {
   Assistante
   Vendeuse
   Livreur
+  Confirmatrice
 }

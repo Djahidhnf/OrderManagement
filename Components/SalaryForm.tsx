@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 
-function SalaryForm({users}: {users: never[]}) {
+function SalaryForm({users}: {users: any[]}) {
 
     const [salary, setSalary] = useState<number | null>(null);
     const [orders, setOrders] = useState<any[]>([])
@@ -18,6 +18,11 @@ function SalaryForm({users}: {users: never[]}) {
         e.preventDefault();
         const res = await fetch(`/api/users/salary?id=${id}&start=${start}&end=${end}`)
         const data = await res.json()
+        if (!Array.isArray(data) || data.length === 0) {
+            setSalary(0);
+            setOrders([]);
+            return;
+        }
         setSalary(data[0].total_benefit)
         setOrders(data)
     }

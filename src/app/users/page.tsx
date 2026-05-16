@@ -27,8 +27,12 @@ async function Users() {
 
 
 
-  const res = await fetch("http://localhost:3000/api/users");
-  const users = await res.json();
+  const cookieHeader = (await cookies()).toString();
+  const res = await fetch("http://localhost:3000/api/users", {
+    headers: { cookie: cookieHeader },
+  });
+  const data = await res.json();
+  const users = Array.isArray(data) ? data : [];
 
 
 

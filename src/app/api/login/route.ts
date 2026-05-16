@@ -18,6 +18,10 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    if (!user.active) {
+      return Response.json({ error: 'Account disabled' }, { status: 403 });
+    }
+
     const res = NextResponse.json({ ok: true });
     res.cookies.set({ name: 'userId', value: String(user.id), httpOnly: true, path: '/', maxAge: 60 * 60 * 24, sameSite: 'lax' });
     res.cookies.set('role', String(user.role), { httpOnly: true, path: '/' });
