@@ -132,6 +132,20 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Reverse salary effects of this order
+    if (order.benefit && order.seller_id) {
+      await prisma.users.update({
+        where: { id: Number(order.seller_id) },
+        data: { salary: { decrement: Number(order.benefit) } },
+      });
+    }
+    if (order.delivery_id && order.fee) {
+      await prisma.users.update({
+        where: { id: Number(order.delivery_id) },
+        data: { salary: { decrement: Number(order.fee) } },
+      });
+    }
+
     await prisma.orders.delete({ where: { id: BigInt(id) } });
     return NextResponse.json({ success: true });
   } catch (err) {

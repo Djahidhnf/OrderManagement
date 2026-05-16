@@ -75,18 +75,66 @@ export async function PATCH(
 
     const data: any = {};
 
-    // Notes: append with role prefix (requires pre-fetch)
-    if (note !== undefined) {
-      const current = await prisma.orders.findUnique({
-        where: { id: orderId },
-        select: { notes: true },
-      });
+    // Single pre-fetch used for both notes append and salary delta
+    const currentOrder = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: { notes: true, seller_id: true, delivery_id: true, benefit: true, fee: true },
+    });
+
+    if (note !== undefined && currentOrder) {
       const formatted = new Date().toLocaleString('fr-FR', {
         day: '2-digit', month: '2-digit', year: '2-digit',
         hour: '2-digit', minute: '2-digit',
       });
       const prefix = role === 'Livreur' ? 'Liv' : role === 'Admin' ? 'Ad' : 'Cnf';
-      data.notes = `${current?.notes ?? ''}[${prefix} - ${formatted}] - ${note}\n`;
+      data.notes = `${currentOrder.notes ?? ''}[${prefix} - ${formatted}] - ${note}\n`;
+    }
+
+    // Salary adjustments (uses the same currentOrder from above)
+    if (currentOrder) {
+      // Adjust seller salary if benefit changed
+      if (benefit !== undefined) {
+        const delta = Number(benefit) - Number(currentOrder.benefit ?? 0);
+        if (delta !== 0) {
+          await prisma.users.update({
+            where: { id: Number(currentOrder.seller_id) },
+            data: { salary: { increment: delta } },
+          });
+        }
+      }
+
+      // Adjust delivery salary if fee or delivery_id changed
+      const newDeliveryId = delivery_id !== undefined
+        ? (delivery_id ? Number(delivery_id) : null)
+        : (currentOrder.delivery_id ? Number(currentOrder.delivery_id) : null);
+      const oldDeliveryId = currentOrder.delivery_id ? Number(currentOrder.delivery_id) : null;
+      const newFee = fee !== undefined ? Number(fee) : Number(currentOrder.fee ?? 0);
+      const oldFee = Number(currentOrder.fee ?? 0);
+
+      if (oldDeliveryId !== newDeliveryId) {
+        // Delivery person changed: reverse old fee, apply new fee
+        if (oldDeliveryId && oldFee) {
+          await prisma.users.update({
+            where: { id: oldDeliveryId },
+            data: { salary: { decrement: oldFee } },
+          });
+        }
+        if (newDeliveryId && newFee) {
+          await prisma.users.update({
+            where: { id: newDeliveryId },
+            data: { salary: { increment: newFee } },
+          });
+        }
+      } else if (fee !== undefined && oldDeliveryId) {
+        // Same delivery person, fee amount changed
+        const delta = newFee - oldFee;
+        if (delta !== 0) {
+          await prisma.users.update({
+            where: { id: oldDeliveryId },
+            data: { salary: { increment: delta } },
+          });
+        }
+      }
     }
 
     if (client_name !== undefined) data.client_name = client_name;
