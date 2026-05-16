@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '../../../../lib/prisma';
 import { num } from '../../../../lib/serialize';
 
@@ -26,6 +27,13 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const cookieStore = cookies();
+    const reqUserId = (await cookieStore).get('userId')?.value;
+    const reqRole = (await cookieStore).get('role')?.value;
+
+    if (!reqUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (reqRole !== 'Admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     const { username, password, passwordConfirmation, phone, role } = await req.json();
 
     if (password !== passwordConfirmation) {
