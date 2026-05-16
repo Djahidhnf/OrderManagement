@@ -1,76 +1,51 @@
-import { NextResponse } from "next/server";
-import pool from "../../../../../../lib/db";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../../../lib/prisma';
+import { serializeOrder } from '../../../../../../lib/serialize';
+
+const SELLER_RELATION = 'users_orders_seller_idTousers';
+const DELIVERY_RELATION = 'users_orders_delivery_idTousers';
+
+const ORDER_INCLUDE = {
+  [SELLER_RELATION]: { select: { username: true, phone: true } },
+  [DELIVERY_RELATION]: { select: { username: true, phone: true } },
+} as const;
 
 export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params;
-    const key = id;
-
+    const { id: key } = await context.params;
     const cookieStore = cookies();
-    const userId = (await cookieStore).get("userId")?.value;
-    const role = (await cookieStore).get("role")?.value;
+    const userId = (await cookieStore).get('userId')?.value;
+    const role = (await cookieStore).get('role')?.value;
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Updated query with JOINs to get seller and delivery info
-    const baseQuery = `
-      SELECT 
-        orders.*,
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS formatted_date,
-        seller.username AS seller_name,
-        seller.phone AS seller_phone,
-        delivery.username AS delivery_name,
-        delivery.phone AS delivery_phone
-      FROM orders
-      LEFT JOIN users AS seller ON orders.seller_id = seller.id
-      LEFT JOIN users AS delivery ON orders.delivery_id = delivery.id
-    `;
-    
-    const conditions: string[] = [];
-    const values: any[] = [];
+    // Heuristic: short keys are order IDs, longer ones are phone numbers
+    const searchWhere = key.length < 5
+      ? { id: BigInt(key) }
+      : { OR: [{ client_phone1: key }, { client_phone2: key }] };
 
-    // 🔍 Search condition
-    if (key.length < 5) {
-      conditions.push(`orders.id = $${values.length + 1}`);
-      values.push(Number(key));
-    } else {
-      conditions.push(`(
-        orders.client_phone1 = $${values.length + 1}
-        OR orders.client_phone2 = $${values.length + 1}
-      )`);
-      values.push(key);
-    }
+    // Role filter
+    const roleWhere: any = {};
+    if (role === 'Vendeuse') roleWhere.seller_id = Number(userId);
+    else if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
 
-    // 🔒 Role-based filtering
-    if (role === "Vendeuse") {
-      conditions.push(`orders.seller_id = $${values.length + 1}`);
-      values.push(userId);
-    } else if (role === "Livreur") {
-      conditions.push(`orders.delivery_id = $${values.length + 1}`);
-      values.push(userId);
-    }
-    // Admin → no restriction
+    const orders = await prisma.orders.findMany({
+      where: { ...searchWhere, ...roleWhere },
+      include: ORDER_INCLUDE,
+      orderBy: { id: 'desc' },
+    });
 
-    // Build final query
-    const query = `
-      ${baseQuery}
-      WHERE ${conditions.join(" AND ")}
-      ORDER BY orders.id DESC
-    `;
-      
-    const result = await pool.query(query, values);
-    console.log(result.rows);
-
-    return NextResponse.json(result.rows);
-
+    return NextResponse.json(orders.map(o =>
+      serializeOrder(o, (o as any)[SELLER_RELATION], (o as any)[DELIVERY_RELATION])
+    ));
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "order search failed" }, { status: 500 });
+    return NextResponse.json({ error: 'Order search failed' }, { status: 500 });
   }
 }

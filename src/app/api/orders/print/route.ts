@@ -1,35 +1,45 @@
-import { NextResponse } from "next/server";
-import pool from "../../../../../lib/db";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../../lib/prisma';
+import { serializeOrder } from '../../../../../lib/serialize';
+
+const SELLER_RELATION = 'users_orders_seller_idTousers';
+const DELIVERY_RELATION = 'users_orders_delivery_idTousers';
 
 export async function GET(req: Request) {
-    try {
-        const {searchParams} = new URL(req.url);
-        const date = searchParams.get('date');
+  try {
+    const { searchParams } = new URL(req.url);
+    const date = searchParams.get('date');
 
-        const cookieStore = cookies();
-        const role = (await cookieStore).get("role")?.value;
+    if (!date) return NextResponse.json({ error: 'Missing date' }, { status: 400 });
 
-        if (role === 'Livreur') {
-            return NextResponse.json({error: "Denied"}, {status: 403});
-        }
-        
-        const result = await pool.query(`
-        SELECT 
-            orders.*,
-            users.username AS delivery_name,
-            users.phone AS delivery_phone
-        FROM orders
-        LEFT JOIN users ON orders.delivery_id = users.id
-        WHERE orders.client_wilaya != 'Alger'
-        AND orders.order_date >= $1::date
-        AND orders.order_date < $1::date + interval '1 day'
-        `, [date]);
+    const cookieStore = cookies();
+    const role = (await cookieStore).get('role')?.value;
 
-        return NextResponse.json(result.rows);
-
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "query failed"}, {status: 500})
+    if (role === 'Livreur') {
+      return NextResponse.json({ error: 'Denied' }, { status: 403 });
     }
+
+    const gte = new Date(date);
+    const lt = new Date(date);
+    lt.setDate(lt.getDate() + 1);
+
+    const orders = await prisma.orders.findMany({
+      where: {
+        client_wilaya: { not: 'Alger' },
+        order_date: { gte, lt },
+      },
+      include: {
+        [SELLER_RELATION]: { select: { username: true, phone: true } },
+        [DELIVERY_RELATION]: { select: { username: true, phone: true } },
+      },
+    });
+
+    return NextResponse.json(orders.map(o =>
+      serializeOrder(o, (o as any)[SELLER_RELATION], (o as any)[DELIVERY_RELATION])
+    ));
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Query failed' }, { status: 500 });
+  }
 }

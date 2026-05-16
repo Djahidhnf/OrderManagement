@@ -1,18 +1,21 @@
-import { NextResponse } from "next/server";
-import pool from "../../../../../lib/db";
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../../lib/prisma';
 
 export async function GET(req: Request) {
-    try {
-        const {searchParams} = new URL(req.url);
-        const id = searchParams.get('id');
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
 
-        const result = await pool.query(`SELECT notes FROM orders where id = $1`, [id])
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
 
+    const order = await prisma.orders.findUnique({
+      where: { id: BigInt(id) },
+      select: { notes: true },
+    });
 
-        return NextResponse.json(result.rows[0]);
-
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "failed to fetch notes"}, {status: 500})
-    }
+    return NextResponse.json({ notes: order?.notes ?? null });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Failed to fetch notes' }, { status: 500 });
+  }
 }
