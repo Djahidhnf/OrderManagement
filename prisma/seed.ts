@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client/edge'
 import bcrypt from 'bcrypt'
 import fs from 'node:fs'
 import path from 'node:path'
