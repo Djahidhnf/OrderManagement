@@ -20,6 +20,10 @@ export async function GET(
   try {
     const { id } = await context.params;
 
+    const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const order = await prisma.orders.findUnique({
       where: { id: BigInt(id) },
       include: ORDER_INCLUDE,

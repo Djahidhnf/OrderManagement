@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../lib/prisma';
 
@@ -7,6 +8,10 @@ export async function GET(req: Request) {
     const id = searchParams.get('id');
 
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+
+    const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const order = await prisma.orders.findUnique({
       where: { id: BigInt(id) },

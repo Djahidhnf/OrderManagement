@@ -14,8 +14,10 @@ export async function GET(req: Request) {
     if (!date) return NextResponse.json({ error: 'Missing date' }, { status: 400 });
 
     const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
     const role = (await cookieStore).get('role')?.value;
 
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (role === 'Livreur') {
       return NextResponse.json({ error: 'Denied' }, { status: 403 });
     }

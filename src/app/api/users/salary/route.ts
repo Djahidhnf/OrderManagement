@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../../lib/prisma';
 
@@ -11,6 +12,10 @@ export async function GET(req: Request) {
     if (!id || !start || !end) {
       return NextResponse.json({ error: 'Missing params' }, { status: 400 });
     }
+
+    const cookieStore = cookies();
+    const userId = (await cookieStore).get('userId')?.value;
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const startDate = new Date(start);
     const endDate = new Date(end);
