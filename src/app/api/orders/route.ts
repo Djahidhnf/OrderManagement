@@ -1,84 +1,64 @@
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
 import pool from "../../../../lib/db";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../lib/prisma';
+import { serializeOrder } from '../../../../lib/serialize';
 
+// Exact relation field names from prisma/schema.prisma
+const SELLER_RELATION = 'users_orders_seller_idTousers';
+const DELIVERY_RELATION = 'users_orders_delivery_idTousers';
+
+const ORDER_INCLUDE = {
+  [SELLER_RELATION]: { select: { username: true, phone: true } },
+  [DELIVERY_RELATION]: { select: { username: true, phone: true } },
+} as const;
 
 export async function GET(req: Request) {
   try {
     const cookieStore = cookies();
-    const userId = (await cookieStore).get("userId")?.value;
-    const role = (await cookieStore).get("role")?.value;
+    const userId = (await cookieStore).get('userId')?.value;
+    const role = (await cookieStore).get('role')?.value;
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
-    const start = searchParams.get("start");
-    const end = searchParams.get("end");
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
 
-    let query = `
-      SELECT 
-        orders.*,
-
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS formatted_date,
-
-        d.username AS delivery_name,
-        d.phone AS delivery_phone,
-
-        s.username AS seller_name,
-        s.phone AS seller_phone
-
-      FROM orders
-      LEFT JOIN users d ON orders.delivery_id = d.id
-      LEFT JOIN users s ON orders.seller_id = s.id
-    `;
-
-    const conditions: string[] = [];
-    const values: any[] = [];
-
-    // 📅 Date filter
+    // Date range: provided or default to today
+    let gte: Date;
+    let lt: Date;
     if (start && end) {
-      conditions.push(`
-        orders.order_date >= $${values.length + 1}::date
-        AND orders.order_date < $${values.length + 2}::date + interval '1 day'
-      `);
-      values.push(start, end);
+      gte = new Date(start);
+      lt = new Date(end);
+      lt.setDate(lt.getDate() + 1);
     } else {
-      conditions.push(`
-        orders.order_date >= CURRENT_DATE
-        AND orders.order_date < CURRENT_DATE + interval '1 day'
-      `);
+      gte = new Date();
+      gte.setHours(0, 0, 0, 0);
+      lt = new Date(gte);
+      lt.setDate(lt.getDate() + 1);
     }
 
-    // 🔒 Role-based filtering
-    if (role === "Vendeuse") {
-      conditions.push(`orders.seller_id = $${values.length + 1}`);
-      values.push(userId);
-    } 
-    else if (role === "Livreur") {
-      conditions.push(`orders.delivery_id = $${values.length + 1}`);
-      values.push(userId);
-    } 
-    else if (role === "Confirmatrice") {
-      conditions.push(`orders.client_wilaya != $${values.length + 1}`);
-      values.push("Alger");
-    }
+    // Role-based filter
+    const roleWhere: any = {};
+    if (role === 'Vendeuse') roleWhere.seller_id = Number(userId);
+    else if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
+    else if (role === 'Confirmatrice') roleWhere.client_wilaya = { not: 'Alger' };
 
-    // Apply conditions
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(" AND ")}`;
-    }
+    const orders = await prisma.orders.findMany({
+      where: { order_date: { gte, lt }, ...roleWhere },
+      include: ORDER_INCLUDE,
+      orderBy: { id: 'desc' },
+    });
 
-    query += ` ORDER BY orders.id DESC`;
-
-    const result = await pool.query(query, values);
-
-    return NextResponse.json(result.rows);
-
+    return NextResponse.json(orders.map(o =>
+      serializeOrder(o, (o as any)[SELLER_RELATION], (o as any)[DELIVERY_RELATION])
+    ));
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Database query failed" }, { status: 500 });
+    return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
   }
 }
 
