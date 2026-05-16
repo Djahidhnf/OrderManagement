@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model orders {
+  id                              BigInt       @id @default(autoincrement())
+  seller_id                       Int
+  delivery_id                     Int?
+  client_name                     String
+  client_phone1                   String       @db.VarChar(15)
+  client_phone2                   String?      @db.VarChar(15)
+  client_wilaya                   String?      @db.VarChar(30)
+  client_address                  String
+  products                        String?
+  benefit                         Decimal?     @db.Decimal(10, 0)
+  total                           Decimal?     @db.Decimal(10, 0)
+  status                          order_status @default(Nouveau)
+  order_date                      DateTime?    @default(now()) @db.Timestamp(6)
+  fee                             Decimal?     @db.Decimal(5, 0)
+  notes                           String?
+  return_fee                      Decimal?     @db.Decimal(5, 0)
+  users_orders_delivery_idTousers users?       @relation("orders_delivery_idTousers", fields: [delivery_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_delivery")
+  users_orders_seller_idTousers   users        @relation("orders_seller_idTousers", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_seller")
+}
+
+model users {
+  id                               Int       @id @default(autoincrement())
+  username                         String    @unique @db.VarChar(50)
+  password                         String
+  role                             user_role
+  salary                           Decimal?  @db.Decimal(10, 0)
+  phone                            String?   @db.VarChar(10)
+  orders_orders_delivery_idTousers orders[]  @relation("orders_delivery_idTousers")
+  orders_orders_seller_idTousers   orders[]  @relation("orders_seller_idTousers")
+}
+
+enum order_status {
+  Nouveau
+  En_route @map("En route")
+  Livr_    @map("Livré")
+  Annul_   @map("Annulé")
+  Retour
+}
+
+enum user_role {
+  Admin
+  Assistante
+  Vendeuse
+  Livreur
+}
