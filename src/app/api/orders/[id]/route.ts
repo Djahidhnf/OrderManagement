@@ -1,168 +1,120 @@
-import { NextResponse } from "next/server";
-import pool from "../../../../../lib/db";
-import { cookies } from "next/headers";
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../../../../lib/prisma';
+import { serializeOrder } from '../../../../../lib/serialize';
+import { toPrisma } from '../../../../../lib/status';
 
+// Exact relation field names from prisma/schema.prisma
+const SELLER_RELATION = 'users_orders_seller_idTousers';
+const DELIVERY_RELATION = 'users_orders_delivery_idTousers';
 
-export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
-    try {
+const ORDER_INCLUDE = {
+  [SELLER_RELATION]: { select: { username: true, phone: true } },
+  [DELIVERY_RELATION]: { select: { username: true, phone: true } },
+} as const;
 
-        const {id} = await context.params;
+export async function GET(
+  _req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
 
-        // const cookieStore = cookies();
-        // const userId = (await cookieStore).get("userId")?.value;
-        // const role = (await cookieStore).get("role")?.value;
+    const order = await prisma.orders.findUnique({
+      where: { id: BigInt(id) },
+      include: ORDER_INCLUDE,
+    });
 
-        
-
-
-        
-const result = await pool.query(`
-      SELECT 
-        orders.*,
-
-        TO_CHAR(orders.order_date, 'DD/MM/YYYY HH24:MI') AS formatted_date,
-
-        d.username AS delivery_name,
-        d.phone AS delivery_phone,
-
-        s.username AS seller_name,
-        s.phone AS seller_phone
-
-      FROM orders
-      LEFT JOIN users d ON orders.delivery_id = d.id
-      LEFT JOIN users s ON orders.seller_id = s.id
-      WHERE orders.id = $1
-`, [id]);
-
-console.log(result.rows[0] + "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-
-        
-        return NextResponse.json(result.rows[0]);
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({error: "Query failed"})
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
+
+    return NextResponse.json(
+      serializeOrder(order, (order as any)[SELLER_RELATION], (order as any)[DELIVERY_RELATION])
+    );
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Query failed' }, { status: 500 });
+  }
 }
-
-
-
-
-
 
 export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-
-
-
     const { id } = await context.params;
-    const orderId = Number(id);
+    const orderId = BigInt(id);
 
     const cookieStore = cookies();
-    const role = (await cookieStore).get("role")?.value;
-        
-    if (!id) {
-      return NextResponse.json({ error: "Invalid order id" }, { status: 400 });
-    }
+    const role = (await cookieStore).get('role')?.value;
 
     const body = await req.json();
-
     const {
-      client_name,
-      client_phone1,
-      client_phone2,
-      client_wilaya,
-      client_address,
-      products,
-      delivery_id,
-      benefit,
-      total,
-      status,
-      fee,
-      note,
-      returnFee,
+      client_name, client_phone1, client_phone2, client_wilaya, client_address,
+      products, delivery_id, benefit, total, status, fee, note, returnFee,
     } = body;
 
-
-    if (role === "Assistante" && status !== "En route" && status !== "Nouveau") {
-      return NextResponse.json({error: "Denied"}, {status: 403});
-    } else if (role === "Livreur" && status !== "Livré" && note === undefined) {
-      return NextResponse.json({error: "Denied"}, {status: 403});
-    } else if (role === "Vendeuse") {
-      return NextResponse.json({error: "Denied"}, {status: 403});
-    } else if (role === "Confirmatrice" && status !== "Annulé" && note === undefined) {
-      return NextResponse.json({error: "Denied"}, {status: 403});
+    // Role guards
+    if (role === 'Assistante' && status !== 'En route' && status !== 'Nouveau') {
+      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+    }
+    if (role === 'Livreur' && status !== 'Livré' && note === undefined) {
+      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+    }
+    if (role === 'Vendeuse') {
+      return NextResponse.json({ error: 'Denied' }, { status: 403 });
+    }
+    if (role === 'Confirmatrice' && status !== 'Annulé' && note === undefined) {
+      return NextResponse.json({ error: 'Denied' }, { status: 403 });
     }
 
+    const data: any = {};
 
-    // if (delivery_id === null) {
-    //   status = "Nouveau";
-    // }
-
-
-    const fields: string[] = [];
-    const values: unknown[] = [];
-
-  const now = new Date();
-  const formatted = now.toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-});
-
-if (note !== undefined && role === "Livreur") {
-  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
-  values.push(`[Liv - ${formatted}] - ${note}\n`);
-} else if (note !== undefined && role === "Admin") {
-  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
-  values.push(`[Ad - ${formatted}] - ${note}\n`);
-} else if (note !== undefined && role === "Confirmatrice") {
-  fields.push(`notes = COALESCE(notes, '') || $${values.length + 1}`);
-  values.push(`[Cnf - ${formatted}] - ${note}\n`);
-}
-
-
-      if (client_name !== undefined) { fields.push(`client_name = $${values.length + 1}`); values.push(client_name); }
-      if (client_phone1 !== undefined) { fields.push(`client_phone1 = $${values.length + 1}`); values.push(client_phone1); }
-      if (client_phone2 !== undefined) { fields.push(`client_phone2 = $${values.length + 1}`); values.push(client_phone2); }
-      if (client_wilaya !== undefined) { fields.push(`client_wilaya = $${values.length + 1}`); values.push(client_wilaya); }
-      if (client_address !== undefined) { fields.push(`client_address = $${values.length + 1}`); values.push(client_address); }
-      if (products !== undefined) { fields.push(`products = $${values.length + 1}`); values.push(products); }
-      if (delivery_id !== undefined) { fields.push(`delivery_id = $${values.length + 1}`); values.push(delivery_id); }
-      if (benefit !== undefined) { fields.push(`benefit = $${values.length + 1}`); values.push(benefit); }
-      if (total !== undefined) { fields.push(`total = $${values.length + 1}`); values.push(total); }
-      if (status !== undefined) { fields.push(`status = $${values.length + 1}`); values.push(status); }
-      if (fee !== undefined) { fields.push(`fee = $${values.length + 1}`); values.push(fee)}
-      if (returnFee !== undefined) {fields.push(`return_fee = $${values.length + 1}`); values.push(returnFee)}
-    
-
-
-    if (fields.length === 0) {
-      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+    // Notes: append with role prefix (requires pre-fetch)
+    if (note !== undefined) {
+      const current = await prisma.orders.findUnique({
+        where: { id: orderId },
+        select: { notes: true },
+      });
+      const formatted = new Date().toLocaleString('fr-FR', {
+        day: '2-digit', month: '2-digit', year: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+      });
+      const prefix = role === 'Livreur' ? 'Liv' : role === 'Admin' ? 'Ad' : 'Cnf';
+      data.notes = `${current?.notes ?? ''}[${prefix} - ${formatted}] - ${note}\n`;
     }
 
-    console.log(fields +'\n' + values)
+    if (client_name !== undefined) data.client_name = client_name;
+    if (client_phone1 !== undefined) data.client_phone1 = client_phone1;
+    if (client_phone2 !== undefined) data.client_phone2 = client_phone2;
+    if (client_wilaya !== undefined) data.client_wilaya = client_wilaya;
+    if (client_address !== undefined) data.client_address = client_address;
+    if (products !== undefined) data.products = products;
+    if (delivery_id !== undefined) data.delivery_id = delivery_id ? Number(delivery_id) : null;
+    if (benefit !== undefined) data.benefit = benefit;
+    if (total !== undefined) data.total = total;
+    if (fee !== undefined) data.fee = fee;
+    if (returnFee !== undefined) data.return_fee = returnFee;
 
-    values.push(orderId);
+    // Map display status string to Prisma enum identifier
+    if (status !== undefined) data.status = toPrisma(status);
 
-    const query = `
-      UPDATE orders
-      SET ${fields.join(", ")}
-      WHERE id = $${values.length}
-      RETURNING *
-    `;
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+    }
 
-    const result = await pool.query(query, values);
+    const updated = await prisma.orders.update({
+      where: { id: orderId },
+      data,
+      include: ORDER_INCLUDE,
+    });
 
-    return NextResponse.json(result.rows[0], {status: 200});
-    
-
+    return NextResponse.json(
+      serializeOrder(updated, (updated as any)[SELLER_RELATION], (updated as any)[DELIVERY_RELATION])
+    );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Database update failed" }, { status: 500 });
+    return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
   }
 }
