@@ -1,5 +1,5 @@
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '@prisma/client/edge'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -18,7 +18,7 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const adapter = new PrismaPg(process.env.DATABASE_URL!)
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
