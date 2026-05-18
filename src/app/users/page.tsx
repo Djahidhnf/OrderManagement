@@ -6,6 +6,8 @@ import { Toaster } from "react-hot-toast";
 import { redirect } from "next/navigation";
 import SalaryForm from "../../../Components/SalaryForm";
 import DeliveryTotalForm from "../../../Components/DeliveryTotalForm";
+import { prisma } from "../../../lib/prisma";
+import { num } from "../../../lib/serialize";
 
 
 async function Users() {
@@ -27,12 +29,11 @@ async function Users() {
 
 
 
-  const cookieHeader = (await cookies()).toString();
-  const res = await fetch("http://localhost:3000/api/users", {
-    headers: { cookie: cookieHeader },
+  const rawUsers = await prisma.users.findMany({
+    orderBy: { id: "asc" },
+    select: { id: true, username: true, role: true, salary: true, phone: true, active: true },
   });
-  const data = await res.json();
-  const users = Array.isArray(data) ? data : [];
+  const users = rawUsers.map(u => ({ ...u, salary: num(u.salary) }));
 
 
 
