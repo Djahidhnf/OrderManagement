@@ -1,5 +1,5 @@
 // lib/prisma.ts
-import { PrismaPg } from "@prisma/adapter-pg"
+import { PrismaNeon } from "@prisma/adapter-neon"
 import { PrismaClient } from "@prisma/client"
 
 const globalForPrisma = globalThis as unknown as {
@@ -7,7 +7,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
-  const adapter = new PrismaPg(process.env.DATABASE_URL!)
+  const adapter = new PrismaNeon(process.env.DATABASE_URL!)
   return new PrismaClient({ adapter })
 }
 
