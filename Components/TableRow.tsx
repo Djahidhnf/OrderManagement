@@ -44,7 +44,7 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">{order.total}</td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
-                <StateButton state={order.status} id={order.id} />
+                <StateButton state={order.status} id={order.id} setOrders={setOrders} />
             </td>
         </tr>
       ))}
