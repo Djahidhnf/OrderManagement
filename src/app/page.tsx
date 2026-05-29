@@ -2,105 +2,77 @@
 import AddButton from "../../Components/AddButton";
 import { Toaster } from "react-hot-toast";
 import TableRow from "../../Components/TableRow";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import OrderFilter from "../../Components/OrdersFilter";
 import Searchbar from "../../Components/Searchbar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import PrintOrders from "../../Components/PrintOrders";
 import Scan from "../../Components/Scan";
 import DateSearch from "../../Components/DateSearch";
 
-
-
-export default function Home() {
-
+function HomeContent() {
   const router = useRouter();
-
+  const searchParams = useSearchParams();
 
   const [userId, setUserId] = useState<number | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
-
-  // const today = new Date(). toISOString().split('T')[0];
-  // const [startDate, setStartDate] = useState(today);
-  // const [endDate, setEndDate] = useState(today);
-
-  // Check session
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function checkSession() {
       const res = await fetch("/api/check-session");
-
-      if (!res.ok) {
-        router.push("/login");
-        return;
-      }
-
+      if (!res.ok) { router.push("/login"); return; }
       const data = await res.json();
       setUserId(Number(data.userId));
       setLoading(false);
     }
-
     checkSession();
   }, [router]);
 
-
-  // Fetch orders
   useEffect(() => {
-  if (!userId) return;
+    if (!userId) return;
 
-  async function fetchOrders() {
-    const res = await fetch("/api/orders");
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
 
-    if (!res.ok) {
-      console.error("API failed");
-      setOrders([]); // prevent crash
-      return;
+    let url = '/api/orders';
+    if (start && end) {
+      url = `/api/orders?start=${start}&end=${end}`;
+    } else if (filter !== 'Nouveau') {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        .toISOString().split('T')[0];
+      const today = now.toISOString().split('T')[0];
+      url = `/api/orders?start=${monthStart}&end=${today}`;
     }
 
-    const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      console.error("Invalid data:", data);
-      setOrders([]);
-      return;
+    async function fetchOrders() {
+      const res = await fetch(url);
+      if (!res.ok) { setOrders([]); return; }
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
     }
 
-    setOrders(data);
-  }
+    fetchOrders();
+  }, [userId, searchParams, filter]);
 
-  fetchOrders();
-}, [userId]);
+  if (loading) return <div>Loading...</div>;
 
-  // Filtered orders
-  // const filteredOrders =
-  //   filter === ""
-  //     ? orders
-  //     : orders.filter(order => order.status === filter);
-
-  if (loading) return <div>Loading...</div>; // prevent flicker
-  
   return (
     <>
-      <Toaster position="top-center" reverseOrder={false}/>
-
+      <Toaster position="top-center" reverseOrder={false} />
       <main className="text-white mx-5 h-screen pt-30 w-vw relative">
-        {/* <h1 className="text-3xl mb-5 mt-20">Gestion des Commandes</h1> */}
-
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
           <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
           <div className="flex">
-            <DateSearch setOrders={setOrders}/>
-            <PrintOrders/>
+            <DateSearch />
+            <PrintOrders />
             <Scan />
           </div>
-            <AddButton path="/order"/>
-          
+          <AddButton path="/order" />
         </div>
-
-        
 
         <div className="overflow-y-auto h-[85%] w-full border border-gray-600 mt-5">
           <table className="w-full min-w-225 text-left h-fit">
@@ -118,15 +90,20 @@ export default function Home() {
                 <th className="px-5 border border-gray-600 w-1/16">Etat</th>
               </tr>
             </thead>
-            <tbody > 
-              <TableRow orders={orders} filter={filter} setOrders={setOrders}/>
+            <tbody>
+              <TableRow orders={orders} filter={filter} setOrders={setOrders} />
             </tbody>
           </table>
         </div>
       </main>
     </>
   );
+}
 
-
-
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
 }
