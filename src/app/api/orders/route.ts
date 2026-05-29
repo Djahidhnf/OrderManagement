@@ -26,28 +26,21 @@ export async function GET(req: Request) {
     const start = searchParams.get('start');
     const end = searchParams.get('end');
 
-    // Date range: provided or default to today
-    let gte: Date;
-    let lt: Date;
+    let dateWhere: any = {};
     if (start && end) {
-      gte = new Date(start);
-      lt = new Date(end);
+      const gte = new Date(start);
+      const lt = new Date(end);
       lt.setDate(lt.getDate() + 1);
-    } else {
-      gte = new Date();
-      gte.setHours(0, 0, 0, 0);
-      lt = new Date(gte);
-      lt.setDate(lt.getDate() + 1);
+      dateWhere = { order_date: { gte, lt } };
     }
 
-    // Role-based filter
     const roleWhere: any = {};
     if (role === 'Vendeuse') roleWhere.seller_id = Number(userId);
     else if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
     else if (role === 'Confirmatrice') roleWhere.client_wilaya = { not: 'Alger' };
 
     const orders = await prisma.orders.findMany({
-      where: { order_date: { gte, lt }, ...roleWhere },
+      where: { ...dateWhere, ...roleWhere },
       include: ORDER_INCLUDE,
       orderBy: { id: 'desc' },
     });
