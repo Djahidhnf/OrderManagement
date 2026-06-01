@@ -85,8 +85,12 @@ function HomeContent() {
       <Toaster position="top-center" reverseOrder={false} />
       <main className="text-white mx-5 h-screen pt-30 w-vw relative">
 
+        <h2 className="text-white text-lg font-semibold mb-2">
+          Commandes d'aujourd'hui: {todayCounts[''] ?? 0}
+        </h2>
+
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
-          <OrderFilter filter={filter} setFilter={setFilter} counts={todayCounts} />
+          <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
           <div className="flex">
             <DateSearch />
