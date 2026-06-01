@@ -48,7 +48,9 @@ export default function Order() {
     const [price, setPrice] = useState(0)
     const [benefit, setBenefit] = useState(0);
     const [deliveryFee, setDeliveryFee] = useState(0);
-    
+    const [orderKind, setOrderKind] = useState("livraison");
+    const [shipDate, setShipDate] = useState("");
+
     const [users, setUsers] = useState<any>([]);
     
     const total = Number(price) + Number(benefit) + Number(deliveryFee)
@@ -80,6 +82,8 @@ export default function Order() {
                 benefit: benefit,
                 total: total,
                 fee: deliveryFee,
+                order_kind: orderKind,
+                ship_date: shipDate || null,
             })
         })
 
@@ -147,6 +151,17 @@ export default function Order() {
                         <textarea placeholder="Produits *" name="products" required
                         className="bg-white w-full px-2 h-20"
                         onChange={(e) => setProducts(e.target.value)}/>
+                        <div className="w-full lg:w-[40%] flex justify-between gap-x-2 my-5">
+                            <select name="order_kind"
+                            className="w-[48%] h-8 px-2 bg-white text-black"
+                            onChange={(e) => setOrderKind(e.target.value)}>
+                                <option value="livraison">Livraison</option>
+                                <option value="echange">Echange</option>
+                            </select>
+                            <input type="date" name="ship_date"
+                            className="w-[48%] h-8 px-2 bg-white text-black"
+                            onChange={(e) => setShipDate(e.target.value)}/>
+                        </div>
                         <div className="w-full lg:w-[40%] flex justify-between gap-x-2 my-5">
                             <input type="number" placeholder="Prix *" name="price" required
                             className="w-[48%] h-8 px-2 bg-white"
