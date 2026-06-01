@@ -66,7 +66,10 @@ function HomeContent() {
       if (!res.ok) return;
       const data = await res.json();
       if (!Array.isArray(data)) return;
-      const counts: Record<string, number> = { '': data.length };
+      const counts: Record<string, number> = {
+        '': data.length,
+        'Nouveau': 0, 'En route': 0, 'Livré': 0, 'Annulé': 0,
+      };
       for (const order of data) {
         counts[order.status] = (counts[order.status] ?? 0) + 1;
       }
