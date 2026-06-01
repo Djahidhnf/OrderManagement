@@ -30,7 +30,7 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
                 {order.id}
-                <div className="text-xs text-gray-400">{order.order_kind}</div>
+                {order.order_kind && <div className="text-xs text-gray-400">{order.order_kind}</div>}
             </td>
             <td className="border border-gray-600 px-5 w-1/16">{order.seller_name}</td>
             <td className="border border-gray-600 px-5 w-2/16 py-1">
@@ -48,8 +48,12 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
                 {order.formatted_date}
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
-              {order.fee > 0 && <span className="text-xs text-gray-500">({order.total - order.fee} DA)</span>}<br/>
-              {order.fee > 0 && <span>{order.total} DA</span>}
+              {order.fee > 0
+                ? (<>
+                    <span className="text-xs text-gray-500">({order.total - order.fee} DA)</span><br/>
+                    <span>{order.total} DA</span>
+                  </>)
+                : order.total != null ? `${order.total} DA` : null}
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
                 <StateButton state={order.status} id={order.id} setOrders={setOrders} />
