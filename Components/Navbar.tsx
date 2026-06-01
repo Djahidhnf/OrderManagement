@@ -72,6 +72,9 @@ return (
       <li className={`${path == "/users"? "bg-background" : ""} h-15 px-3 flex items-center rounded-t-lg`}>
         <Link href="/users" className="whitespace-nowrap">Utilisateurs</Link>
       </li>
+      <li className={`${path == "/calculs"? "bg-background" : ""} h-15 px-3 flex items-center rounded-t-lg`}>
+        <Link href="/calculs" className="whitespace-nowrap">Calculs</Link>
+      </li>
     </ul>
 
     {/* User Info - Always visible */}
@@ -113,6 +116,11 @@ return (
             <li className={`${path == "/users"? "bg-background" : ""}`}>
               <a href="/users" className="block px-5 py-4 text-lg" onClick={() => setIsMenuOpen(false)}>
                 Utilisateurs
+              </a>
+            </li>
+            <li className={`${path == "/calculs"? "bg-background" : ""}`}>
+              <a href="/calculs" className="block px-5 py-4 text-lg" onClick={() => setIsMenuOpen(false)}>
+                Calculs
               </a>
             </li>
           </ul>

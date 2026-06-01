@@ -4,8 +4,6 @@ import AddButton from "../../../Components/AddButton"
 import UsersButton from "../../../Components/UsersButton";
 import { Toaster } from "react-hot-toast";
 import { redirect } from "next/navigation";
-import SalaryForm from "../../../Components/SalaryForm";
-import DeliveryTotalForm from "../../../Components/DeliveryTotalForm";
 import { prisma } from "../../../lib/prisma";
 import { num } from "../../../lib/serialize";
 
@@ -88,10 +86,6 @@ async function Users() {
               </tbody>
             </table>
           </div>
-
-          <SalaryForm users={users} />
-
-          <DeliveryTotalForm users={users} />
 
         </main>
       </>
