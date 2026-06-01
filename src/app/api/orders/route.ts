@@ -65,7 +65,7 @@ export async function POST(req: Request) {
     const {
       seller_id, client_name, client_phone1, client_phone2,
       client_wilaya, client_address, products,
-      delivery_id, benefit, total, fee,
+      delivery_id, benefit, total, fee, order_kind, ship_date,
     } = body;
 
     const order = await prisma.orders.create({
@@ -81,6 +81,8 @@ export async function POST(req: Request) {
         benefit: benefit ?? null,
         total: total ?? null,
         fee: fee ?? null,
+        order_kind: order_kind ?? 'livraison',
+        ship_date: ship_date ? new Date(ship_date) : null,
       },
     });
 

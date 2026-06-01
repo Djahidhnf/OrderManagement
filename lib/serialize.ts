@@ -34,6 +34,12 @@ export function serializeOrder(
     seller_phone: seller?.phone ?? null,
     delivery_name: delivery?.username ?? null,
     delivery_phone: delivery?.phone ?? null,
+    order_kind: order.order_kind ?? 'livraison',
+    ship_date: order.ship_date
+      ? (order.ship_date instanceof Date
+          ? order.ship_date.toISOString().split('T')[0]
+          : String(order.ship_date))
+      : null,
   };
 }
 
