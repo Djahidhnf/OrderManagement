@@ -18,6 +18,7 @@ function HomeContent() {
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [todayCounts, setTodayCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     async function checkSession() {
@@ -57,14 +58,32 @@ function HomeContent() {
     fetchOrders();
   }, [userId, searchParams, filter]);
 
+  useEffect(() => {
+    if (!userId) return;
+    const today = new Date().toISOString().split('T')[0];
+    async function fetchTodayCounts() {
+      const res = await fetch(`/api/orders?start=${today}&end=${today}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+      const counts: Record<string, number> = { '': data.length };
+      for (const order of data) {
+        counts[order.status] = (counts[order.status] ?? 0) + 1;
+      }
+      setTodayCounts(counts);
+    }
+    fetchTodayCounts();
+  }, [userId]);
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
       <main className="text-white mx-5 h-screen pt-30 w-vw relative">
+
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
-          <OrderFilter filter={filter} setFilter={setFilter} />
+          <OrderFilter filter={filter} setFilter={setFilter} counts={todayCounts} />
           <Searchbar setOrders={setOrders} />
           <div className="flex">
             <DateSearch />
