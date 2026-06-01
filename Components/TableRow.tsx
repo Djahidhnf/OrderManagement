@@ -7,7 +7,7 @@ import StateButton from "./stateButton";
 
 
 
-export default function TableRow({orders, filter, setOrders}: {orders: any[], filter: string, setOrders: any}) {
+export default function TableRow({orders, filter, setOrders, deliveryFilter}: {orders: any[], filter: string, setOrders: any, deliveryFilter?: number | null}) {
     const router = useRouter();
 
 
@@ -20,7 +20,10 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
 
   return (
     <>
-      {(filter ? orders.filter(o => o.status === filter) : orders)
+      {orders.filter(o =>
+        (!filter || o.status === filter) &&
+        (!deliveryFilter || o.delivery_id === deliveryFilter)
+      )
       .map((order) => (
         <tr key={order.id}
         className={`hover:bg-foreground cursor-pointer ${order.ship_date && order.ship_date > today ? 'text-gray-500' : ''}`}
@@ -45,7 +48,7 @@ export default function TableRow({orders, filter, setOrders}: {orders: any[], fi
                 {order.delivery_name === "wordexpress"? "-" : order.delivery_phone}<br/>
                 {order.delivery_name && order.fee + "DA"}</td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
-                {order.formatted_date}
+                {order.ship_date ? new Date(order.ship_date).toLocaleDateString() : order.formatted_date}
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
               {order.fee > 0

@@ -19,6 +19,8 @@ function HomeContent() {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [todayCounts, setTodayCounts] = useState<Record<string, number>>({});
+  const [livreurs, setLivreurs] = useState<{id: number, username: string}[]>([]);
+  const [deliveryFilter, setDeliveryFilter] = useState<number | null>(null);
 
   useEffect(() => {
     async function checkSession() {
@@ -78,6 +80,16 @@ function HomeContent() {
     fetchTodayCounts();
   }, [userId]);
 
+  useEffect(() => {
+    async function fetchLivreurs() {
+      const res = await fetch('/api/users');
+      if (!res.ok) return;
+      const data = await res.json();
+      setLivreurs(Array.isArray(data) ? data.filter((u: any) => u.role === 'Livreur') : []);
+    }
+    fetchLivreurs();
+  }, []);
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -92,7 +104,16 @@ function HomeContent() {
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
           <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
-          <div className="flex">
+          <div className="flex items-center gap-x-2">
+            <select
+              className="bg-foreground text-white border border-gray-600 px-2 h-8 rounded"
+              onChange={(e) => setDeliveryFilter(e.target.value ? Number(e.target.value) : null)}
+            >
+              <option value="">Tous les livreurs</option>
+              {livreurs.map(l => (
+                <option key={l.id} value={l.id}>{l.username}</option>
+              ))}
+            </select>
             <DateSearch />
             <PrintOrders />
             <Scan />
@@ -117,7 +138,7 @@ function HomeContent() {
               </tr>
             </thead>
             <tbody>
-              <TableRow orders={orders} filter={filter} setOrders={setOrders} />
+              <TableRow orders={orders} filter={filter} setOrders={setOrders} deliveryFilter={deliveryFilter} />
             </tbody>
           </table>
         </div>
