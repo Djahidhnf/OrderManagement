@@ -199,8 +199,8 @@ export default function Order() {
 
                         <select name="fee" id=""
                         className="w-full lg:w-[20%] bg-white px-2 h-8"
-                        onChange={(e) => setDeliveryFee(Number(e.target.value))}
-                        disabled={user?.role === "Vendeuse"}>
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))}>
+
                             <option value="">Tarif Livraison</option>
                             <option value="500">500 DA</option>
                             <option value="600">600 DA</option>
