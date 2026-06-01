@@ -23,6 +23,8 @@ model orders {
   fee                             Decimal?     @db.Decimal(5, 0)
   notes                           String?
   return_fee                      Decimal?     @db.Decimal(5, 0)
+  order_kind                      order_type   @default(livraison)
+  ship_date                       DateTime?    @db.Date
   users_orders_delivery_idTousers users?       @relation("orders_delivery_idTousers", fields: [delivery_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_delivery")
   users_orders_seller_idTousers   users        @relation("orders_seller_idTousers", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_seller")
 }
@@ -53,4 +55,9 @@ enum user_role {
   Vendeuse
   Livreur
   Confirmatrice
+}
+
+enum order_type {
+  livraison
+  echange
 }
