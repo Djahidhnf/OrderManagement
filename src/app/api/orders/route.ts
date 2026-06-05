@@ -39,8 +39,14 @@ export async function GET(req: Request) {
     else if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
     else if (role === 'Confirmatrice') roleWhere.client_wilaya = { not: 'Alger' };
 
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    const futureFilter = (role === 'Assistante' || role === 'Confirmatrice')
+      ? { OR: [{ ship_date: null }, { ship_date: { lte: todayEnd } }] }
+      : {};
+
     const orders = await prisma.orders.findMany({
-      where: { ...dateWhere, ...roleWhere },
+      where: { ...dateWhere, ...roleWhere, ...futureFilter },
       include: ORDER_INCLUDE,
       orderBy: { id: 'desc' },
     });
