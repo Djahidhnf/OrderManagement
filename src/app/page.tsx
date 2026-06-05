@@ -44,10 +44,11 @@ function HomeContent() {
       url = `/api/orders?start=${start}&end=${end}`;
     } else if (filter !== 'Nouveau') {
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-        .toISOString().split('T')[0];
+      const fifteenDaysAgo = new Date(now);
+      fifteenDaysAgo.setDate(now.getDate() - 15);
+      const start15 = fifteenDaysAgo.toISOString().split('T')[0];
       const today = now.toISOString().split('T')[0];
-      url = `/api/orders?start=${monthStart}&end=${today}`;
+      url = `/api/orders?start=${start15}&end=${today}`;
     }
 
     async function fetchOrders() {
@@ -104,9 +105,17 @@ function HomeContent() {
         <div className="flex flex-col lg:flex-row gap-y-5 lg:justify-between w-full">
           <OrderFilter filter={filter} setFilter={setFilter} />
           <Searchbar setOrders={setOrders} />
-          <div className="flex items-center gap-x-2">
-            <select
-              className="bg-foreground text-white border border-gray-600 px-2 h-8 rounded"
+          <div className="flex items-end gap-x-2">
+            <DateSearch />
+            <PrintOrders />
+            <Scan />
+          </div>
+          <AddButton path="/order" />
+        </div>
+
+        <div className="mt-5">
+          <select
+              className="md:self-end self-start bg-foreground text-white border border-gray-600 px-2 h-8 rounded"
               onChange={(e) => setDeliveryFilter(e.target.value ? Number(e.target.value) : null)}
             >
               <option value="">Tous les livreurs</option>
@@ -114,11 +123,6 @@ function HomeContent() {
                 <option key={l.id} value={l.id}>{l.username}</option>
               ))}
             </select>
-            <DateSearch />
-            <PrintOrders />
-            <Scan />
-          </div>
-          <AddButton path="/order" />
         </div>
 
         <div className="overflow-y-auto h-[85%] w-full border border-gray-600 mt-5">
