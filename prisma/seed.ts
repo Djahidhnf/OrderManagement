@@ -1,4 +1,3 @@
-import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import fs from 'node:fs'
@@ -18,10 +17,21 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
-const prisma = new PrismaClient({ adapter })
+async function createPrisma(): Promise<PrismaClient> {
+  if (process.env.DATABASE_URL?.includes('neon.tech')) {
+    const { PrismaNeon } = await import('@prisma/adapter-neon')
+    const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
+    return new PrismaClient({ adapter } as never)
+  }
+  const { Pool } = await import('pg')
+  const { PrismaPg } = await import('@prisma/adapter-pg')
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL! })
+  const adapter = new PrismaPg(pool)
+  return new PrismaClient({ adapter } as never)
+}
 
 async function main() {
+  const prisma = await createPrisma()
   const password = await bcrypt.hash('Admin123!', 12)
 
   await prisma.users.upsert({
@@ -49,9 +59,8 @@ async function main() {
   });
 
   console.log('Delivery created: wordexpress / Admin123!')
-
+  await prisma.$disconnect()
 }
 
 main()
   .catch((e) => { console.error(e); process.exit(1) })
-  .finally(() => prisma.$disconnect())

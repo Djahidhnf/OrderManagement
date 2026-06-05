@@ -38,7 +38,7 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
       }
 
       toast.success("Remarque ajouté avec succès");
-      router.refresh();
+      router.push('/');
   
 
     }
