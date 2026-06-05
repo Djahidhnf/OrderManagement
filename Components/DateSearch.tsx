@@ -9,7 +9,10 @@ function DateSearch() {
   const searchParams = useSearchParams();
 
   const today = new Date().toISOString().split('T')[0];
-  const [startDate, setStartDate] = useState(searchParams.get('start') ?? today);
+  const fifteenDaysAgo = new Date();
+  fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+  const defaultStart = searchParams.get('start') ?? fifteenDaysAgo.toISOString().split('T')[0];
+  const [startDate, setStartDate] = useState(defaultStart);
   const [endDate, setEndDate] = useState(searchParams.get('end') ?? today);
   const [showPopUp, setShowPopUp] = useState(false);
 
