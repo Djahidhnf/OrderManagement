@@ -87,6 +87,13 @@ function HomeContent() {
   }, [userId]);
 
   useEffect(() => {
+    const now = new Date();
+    const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime();
+    const t = setTimeout(() => window.location.reload(), msUntilMidnight);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
     async function fetchLivreurs() {
       const res = await fetch('/api/users');
       if (!res.ok) return;
