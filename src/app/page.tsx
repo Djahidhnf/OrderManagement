@@ -63,8 +63,8 @@ function HomeContent() {
 
   useEffect(() => {
     if (!userId) return;
-    const today = new Date().toISOString().split('T')[0];
     async function fetchTodayCounts() {
+      const today = new Date().toISOString().split('T')[0];
       const res = await fetch(`/api/orders?start=${today}&end=${today}`);
       if (!res.ok) return;
       const data = await res.json();
@@ -79,6 +79,11 @@ function HomeContent() {
       setTodayCounts(counts);
     }
     fetchTodayCounts();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchTodayCounts();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [userId]);
 
   useEffect(() => {
