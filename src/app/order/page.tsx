@@ -197,14 +197,19 @@ export default function Order() {
                             })}
                         </select>
 
-                        <select name="fee" id=""
+                        {/* <select name="fee" id=""
                         className="w-full lg:w-[20%] bg-white px-2 h-8"
                         onChange={(e) => setDeliveryFee(Number(e.target.value))}>
 
                             <option value="">Tarif Livraison</option>
                             <option value="500">500 DA</option>
                             <option value="600">600 DA</option>
-                        </select>
+                        </select> */}
+
+                        <input type="number" placeholder="Frais de livraison" name="fee"
+                        className="w-full lg:w-[20%] h-8 px-2 bg-white"
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))} />
+
                     </div>
 
                     <div className="w-[95%] lg:w-[80%] mx-auto rounded-xl">
