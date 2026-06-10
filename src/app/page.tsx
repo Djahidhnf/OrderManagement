@@ -15,6 +15,7 @@ function HomeContent() {
   const searchParams = useSearchParams();
 
   const [userId, setUserId] = useState<number | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ function HomeContent() {
       if (!res.ok) { router.push("/login"); return; }
       const data = await res.json();
       setUserId(Number(data.userId));
+      setRole(data.role);
       setLoading(false);
     }
     checkSession();
@@ -154,7 +156,7 @@ function HomeContent() {
               </tr>
             </thead>
             <tbody>
-              <TableRow orders={orders} filter={filter} setOrders={setOrders} deliveryFilter={deliveryFilter} />
+              <TableRow orders={orders} filter={filter} setOrders={setOrders} deliveryFilter={deliveryFilter} userId={userId} role={role} />
             </tbody>
           </table>
         </div>
