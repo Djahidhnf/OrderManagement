@@ -32,8 +32,7 @@ export async function GET(
 
     // Role filter
     const roleWhere: any = {};
-    if (role === 'Vendeuse') roleWhere.seller_id = Number(userId);
-    else if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
+    if (role === 'Livreur') roleWhere.delivery_id = Number(userId);
 
     const orders = await prisma.orders.findMany({
       where: { ...searchWhere, ...roleWhere },
