@@ -7,7 +7,7 @@ import StateButton from "./stateButton";
 
 
 
-export default function TableRow({orders, filter, setOrders, deliveryFilter}: {orders: any[], filter: string, setOrders: any, deliveryFilter?: number | null}) {
+export default function TableRow({orders, filter, setOrders, deliveryFilter, userId, role}: {orders: any[], filter: string, setOrders: any, deliveryFilter?: number | null, userId?: number | null, role?: string | null}) {
     const router = useRouter();
 
 
@@ -29,7 +29,7 @@ export default function TableRow({orders, filter, setOrders, deliveryFilter}: {o
         className={`hover:bg-foreground cursor-pointer ${order.ship_date && order.ship_date > today ? 'text-gray-500' : ''}`}
         onDoubleClick={() => handleDoubleClick(order.id)}>
             <td className="border border-gray-600 px-5 w-1/15 py-1">
-                <MoreButton order={order} setOrders={setOrders}/>
+                <MoreButton order={order} setOrders={setOrders} userId={userId} role={role}/>
             </td>
             <td className="border border-gray-600 px-5 w-1/16 py-1">
                 {order.id}
