@@ -82,6 +82,9 @@ export async function PATCH(
       if (note === undefined || status !== undefined) {
         return NextResponse.json({ error: 'Denied' }, { status: 403 });
       }
+      if (Number(currentOrder?.seller_id) !== Number(userId)) {
+        return NextResponse.json({ error: 'Denied' }, { status: 403 });
+      }
     }
     if (role === 'Confirmatrice') {
       const allowedStatuses = ['En route', 'Annulé', 'Livré'];
