@@ -136,7 +136,11 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    if (role !== 'Admin' && !(role === 'Vendeuse' && order.status === 'Nouveau')) {
+    const vendeuseCanDelete = role === 'Vendeuse'
+      && order.status === 'Nouveau'
+      && Number(order.seller_id) === Number(userId);
+
+    if (role !== 'Admin' && !vendeuseCanDelete) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
