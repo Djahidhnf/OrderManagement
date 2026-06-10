@@ -163,12 +163,14 @@ export default function Order() {
                             onChange={(e) => setShipDate(e.target.value)}/>
                         </div>
                         <div className="w-full lg:w-[40%] flex justify-between gap-x-2 my-5">
-                            <input type="number" placeholder="Prix *" name="price" required
+                            <input type="number" placeholder="Prix *" name="price" required min={0}
                             className="w-[48%] h-8 px-2 bg-white"
-                            onChange={(e) => setPrice(Number(e.target.value))}/>
-                            <input type="number" placeholder="Bénéfice" name="benefit"
+                            onChange={(e) => setPrice(Number(e.target.value))}
+                            onWheel={(e) => e.preventDefault()}/>
+                            <input type="number" placeholder="Bénéfice" name="benefit" min={0}
                             className="w-[48%] h-8 px-2 bg-white"
-                            onChange={(e) => setBenefit(Number(e.target.value))}/>
+                            onChange={(e) => setBenefit(Number(e.target.value))}
+                            onWheel={(e) => e.preventDefault()}/>
                         </div>
                         <div className="flex w-full lg:w-[40%]">
                             <div className="bg-background text-white h-8 px-3 rounded-l-md flex items-center whitespace-nowrap">
@@ -206,9 +208,10 @@ export default function Order() {
                             <option value="600">600 DA</option>
                         </select> */}
 
-                        <input type="number" placeholder="Frais de livraison" name="fee"
+                        <input type="number" placeholder="Frais de livraison" name="fee" min={0}
                         className="w-full lg:w-[20%] h-8 px-2 bg-white"
-                        onChange={(e) => setDeliveryFee(Number(e.target.value))} />
+                        onChange={(e) => setDeliveryFee(Number(e.target.value))}
+                        onWheel={(e) => e.preventDefault()} />
 
                     </div>
 
