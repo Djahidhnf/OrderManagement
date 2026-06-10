@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import {toast} from "react-hot-toast";
 
 
-function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
+function MoreButton({order, setOrders, userId, role}: {order: any, setOrders: any, userId?: number | null, role?: string | null}) {
 
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -13,7 +13,9 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
     const [showNotes, setShowNotes] = useState(false);
     const [note, setNote] = useState("")
 
-    
+    const isOwnOrder = Number(order.seller_id) === Number(userId);
+
+
 
     function handleClickDelete() {
         setOpen(false);
@@ -187,22 +189,28 @@ function MoreButton({order, setOrders}: {order: any, setOrders: any}) {
 
 
             <div ref={ref} className={`absolute w-40 bg-white rounded-xl text-black z-3 shadow flex-col ${open? "flex" : 'hidden'}`}>
-                <button 
+                <button
                     onClick={() => handlePrint(order)}
-                    className="cursor-pointer hover:bg-blue-100 rounded-t-xl w-40 py-2">Imprimer
+                    className={`cursor-pointer hover:bg-blue-100 rounded-t-xl w-40 py-2 ${role === 'Vendeuse' && !isOwnOrder ? 'rounded-b-xl' : ''}`}>Imprimer
                 </button>
-                <button 
-                    onClick={() => handleModify(order.id)}
-                    className="cursor-pointer hover:bg-blue-100 w-40 py-2">Modifier
-                </button>
-                <button 
-                    onClick={() => setShowNotes(true)}
-                    className="cursor-pointer hover:bg-blue-100 w-40 py-2">Remarque
-                </button>
-                <button 
-                    onClick={() => handleClickDelete()}
-                    className="cursor-pointer hover:bg-blue-100 rounded-b-xl w-40 py-2">Supprimer
-                </button>
+                {role !== 'Vendeuse' && (
+                    <button
+                        onClick={() => handleModify(order.id)}
+                        className="cursor-pointer hover:bg-blue-100 w-40 py-2">Modifier
+                    </button>
+                )}
+                {(role !== 'Vendeuse' || isOwnOrder) && (
+                    <button
+                        onClick={() => setShowNotes(true)}
+                        className="cursor-pointer hover:bg-blue-100 w-40 py-2">Remarque
+                    </button>
+                )}
+                {(role !== 'Vendeuse' || isOwnOrder) && (
+                    <button
+                        onClick={() => handleClickDelete()}
+                        className="cursor-pointer hover:bg-blue-100 rounded-b-xl w-40 py-2">Supprimer
+                    </button>
+                )}
             </div>
 
 
